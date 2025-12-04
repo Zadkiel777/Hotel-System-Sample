@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
+<<<<<<< HEAD
 -- Generation Time: Dec 03, 2025 at 03:35 PM
+=======
+-- Generation Time: Dec 01, 2025 at 01:10 PM
+>>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -105,10 +109,14 @@ INSERT INTO `activities` (`id`, `user_id`, `action`, `description`, `related_id`
 (61, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-01 03:30:07'),
 (62, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 03:31:06'),
 (63, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-01 03:32:20'),
+<<<<<<< HEAD
 (64, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 03:33:34'),
 (65, 2, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-01 04:12:12'),
 (66, 2, 'Profile Updated', 'Updated profile information', NULL, NULL, '2025-12-01 04:12:33'),
 (67, 2, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 04:27:23');
+=======
+(64, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 03:33:34');
+>>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
 
 -- --------------------------------------------------------
 
@@ -131,7 +139,11 @@ CREATE TABLE `admin` (
 
 INSERT INTO `admin` (`id`, `profile`, `email`, `password`, `name`, `role`) VALUES
 (1, 'uploads/1763863425_69226b8195b17.jpg', 'admin69@gmail.com', '$2y$10$x5vnMR/MwVIwdhHLU0dACe5/5symnRPwKh1omImBb.XC5Wo.3hYGq', 'Cejay Lelis', 'admin'),
+<<<<<<< HEAD
 (2, 'uploads/1764591153_692d86310785b.jpg', 'admin@admin.com', '$2y$10$hLO7hZnIj1fEe8dIFgjGWehbZfB9e5fG1N2z0qrLMi2rdEQXjsh/.', 'Cejay Lelis', 'admin');
+=======
+(2, 'uploads/1763784126_692135be1c604.jpg', 'admin@admin.com', '$2y$10$hLO7hZnIj1fEe8dIFgjGWehbZfB9e5fG1N2z0qrLMi2rdEQXjsh/.', 'Cejay Lelis', 'admin');
+>>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
 
 -- --------------------------------------------------------
 
@@ -324,7 +336,11 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `activities`
 --
 ALTER TABLE `activities`
+<<<<<<< HEAD
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+=======
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+>>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
 
 --
 -- AUTO_INCREMENT for table `admin`
