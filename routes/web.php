@@ -34,9 +34,12 @@ Route::get('/addstaff', [MainController::class, 'addstaff'])->name('addstaff');
 Route::post('/savestaff', [MainController::class, 'save_staff'])->name('save_staff');
 Route::get('/payments', [MainController::class, 'payments'])->name('payments');
 Route::get('/booked-rooms', [App\Http\Controllers\MainController::class, 'bookedRooms'])->name('bookedRooms');
-Route::post('/guest-book-room', [MainController::class, 'guest_book_room'])->name('guest_book_room');
 Route::get('/guestbooking', [MainController::class, 'guestbooking'])->name('guestbooking');
+Route::post('/guest-book-room', [MainController::class, 'guest_book_room'])->name('guest_book_room');
 
+// Member-only booking form & action
+Route::get('/member-booking', [MainController::class, 'memberBooking'])->name('memberBooking');
+Route::post('/member-book-room', [MainController::class, 'member_book_room'])->name('member_book_room');
 
 // UPDATED: Renamed the route to 'dashboard' for consistency and clarity
 Route::get('/dashboard', [MainController::class, 'dashboard'])->name('dashboard');
@@ -69,5 +72,13 @@ Route::put('/rooms/{id}', [MainController::class, 'updateRoom'])->name('updateRo
 Route::delete('/rooms/{id}', [MainController::class, 'deleteRoom'])->name('deleteRoom');
 
 Route::get('/bookings/{id}', [MainController::class, 'viewBooking'])->name('viewBooking');
+
+// Booking lifecycle & payments
+Route::post('/bookings/{id}/status', [MainController::class, 'updateBookingStatus'])->name('bookings.updateStatus');
+Route::post('/bookings/{id}/payment', [MainController::class, 'storeBookingPayment'])->name('bookings.storePayment');
+
+// Customer booking details (member-facing)
+Route::get('/my-bookings/{id}', [MainController::class, 'customerViewBooking'])->name('customer.viewBooking');
+Route::post('/my-bookings/{id}/cancel', [MainController::class, 'customerCancelBooking'])->name('customer.cancelBooking');
 
 Route::delete('/staffs/{id}', [MainController::class, 'deleteStaff'])->name('deleteStaff');

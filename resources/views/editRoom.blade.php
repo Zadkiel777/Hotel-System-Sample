@@ -77,8 +77,9 @@
                                 <select class="form-control" id="status" name="status" style="height: auto;" required>
                                     <option value="">Select Status</option>
                                     <option value="Available" {{ $room->status == 'Available' ? 'selected' : '' }}>Available</option>
-                                    <option value="Unavailable" {{ $room->status == 'Unavailable' ? 'selected' : '' }}>Unavailable</option>
                                     <option value="Occupied" {{ $room->status == 'Occupied' ? 'selected' : '' }}>Occupied</option>
+                                    <option value="Under Maintenance" {{ $room->status == 'Under Maintenance' ? 'selected' : '' }}>Under Maintenance</option>
+                                    <option value="Unavailable" {{ $room->status == 'Unavailable' ? 'selected' : '' }}>Unavailable</option>
                                 </select>
                                 @error('status')
                                     <span class="text-danger">{{ $message }}</span>

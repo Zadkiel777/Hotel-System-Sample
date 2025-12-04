@@ -170,6 +170,7 @@
                             <div class="tab-pane fade" id="admin-login" role="tabpanel">
                                 <form action="{{ route('auth_user') }}" method="POST">
                                     @csrf
+                                    <input type="hidden" name="login_type" value="admin">
                                     <div class="mb-3">
                                         <label class="form-label text-white-50">Email Address</label>
                                         <input type="email" name="email" class="form-control" placeholder="Enter Admin Email" required>
@@ -187,6 +188,7 @@
                                 <div class="text-center text-white-50 mb-4">
                                     <form action="{{ route('auth_user') }}" method="POST">
                                     @csrf
+                                    <input type="hidden" name="login_type" value="customer">
                                     <div class="mb-3">
                                         <label class="form-label text-white-50">Email Address</label>
                                         <input type="email" name="email" class="form-control" placeholder="Enter Customer Email" required>

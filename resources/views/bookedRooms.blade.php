@@ -99,7 +99,15 @@
                                     <tr>
                                         <td>{{ $booking->id }}</td>
                                         <td>
-                                            <strong>{{ $booking->Fname }} {{ $booking->Lname }}</strong>
+                                            <strong>{{ $booking->Fname }} {{ $booking->Lname }}</strong><br>
+                                            @php
+                                                $type = strtolower($booking->customer_type ?? 'guest');
+                                            @endphp
+                                            @if($type === 'member')
+                                                <span class="badge badge-primary">Member</span>
+                                            @else
+                                                <span class="badge badge-secondary">Guest</span>
+                                            @endif
                                         </td>
                                         <td>
                                             <span class="badge badge-info">Room {{ $booking->room_number }}</span>
@@ -128,11 +136,10 @@
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
 
-                                                {{-- Delete/Cancel Form --}}
-                                                {{-- Note: You need to create a route for deleting bookings later --}}
-                                                <form action="#" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                                {{-- Cancel Booking Form --}}
+                                                <form action="{{ route('bookings.updateStatus', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
                                                     @csrf
-                                                    {{-- @method('DELETE') --}}
+                                                    <input type="hidden" name="status" value="Cancelled">
                                                     <button type="submit" class="btn btn-danger btn-sm">
                                                         <i class="fas fa-times"></i> Cancel
                                                     </button>

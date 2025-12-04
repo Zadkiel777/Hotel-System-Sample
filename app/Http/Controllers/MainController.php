@@ -38,12 +38,55 @@ class MainController extends Controller
     }
 
     public function customerDashboard(){
+        // If a customer is not logged in, show an empty but friendly dashboard
+        $customerId = Session::get('customer_id');
 
-        return view('customerDashboard');
+        if (!$customerId) {
+            $bookings = collect();
+            $nextBooking = null;
+            return view('customerDashboard', compact('bookings', 'nextBooking'));
+        }
+
+        // Fetch this customer's bookings with room information
+        $bookings = DB::table('booking')
+            ->join('room', 'booking.room_id', '=', 'room.id')
+            ->where('booking.customer_id', $customerId)
+            ->select(
+                'booking.id',
+                'booking.check_in_date',
+                'booking.check_out_date',
+                'booking.status',
+                'booking.total_amount',
+                'room.room_number',
+                'room.room_type'
+            )
+            ->orderBy('booking.check_in_date', 'desc')
+            ->get();
+
+        // Find the next upcoming booking (check-in date today or in future, not cancelled)
+        $nextBooking = $bookings
+            ->filter(function ($b) {
+                return in_array($b->status, ['Pending', 'Confirmed', 'Occupied']) &&
+                    $b->check_in_date >= date('Y-m-d');
+            })
+            ->sortBy('check_in_date')
+            ->first();
+
+        return view('customerDashboard', compact('bookings', 'nextBooking'));
     }
 
     public function guestbooking(){
         return view('guestbooking');
+    }
+
+    public function memberBooking(){
+        // Only allow logged-in customers to access this form
+        if (!Session::has('customer_id')) {
+            return redirect()->route('main')
+                ->with('error', 'Please log in to your account to use the member booking form.');
+        }
+
+        return view('memberBooking');
     }
 
 
@@ -61,6 +104,7 @@ class MainController extends Controller
             'booking.id',
             'customers.Fname',
             'customers.Lname',
+            'customers.customer_type',
             'room.room_number',
             'room.room_type',
             'booking.check_in_date',
@@ -134,51 +178,251 @@ public function viewBooking($id)
     return view('viewBooking', compact('booking'));
 }
 
+public function customerViewBooking($id)
+{
+    $customerId = Session::get('customer_id');
+    if (!$customerId) {
+        return redirect()->route('main')->with('error', 'Please log in to view your bookings.');
+    }
+
+    $booking = DB::table('booking')
+        ->join('customers', 'booking.customer_id', '=', 'customers.id')
+        ->join('room', 'booking.room_id', '=', 'room.id')
+        ->where('booking.id', $id)
+        ->where('booking.customer_id', $customerId)
+        ->select(
+            'booking.id',
+            'booking.customer_id',
+            'booking.room_id',
+            'booking.check_in_date',
+            'booking.check_out_date',
+            'booking.status',
+            'booking.total_amount',
+            'booking.created_at',
+            'customers.Fname',
+            'customers.Lname',
+            'customers.email',
+            'customers.contact',
+            'room.room_number',
+            'room.room_type'
+        )
+        ->first();
+
+    if (!$booking) {
+        return redirect()->route('customerDashboard')->with('error', 'Booking not found.');
+    }
+
+    // Derive nights and rate per night (based on same simple rate map)
+    $checkIn  = new \DateTime($booking->check_in_date);
+    $checkOut = new \DateTime($booking->check_out_date);
+    $nights   = max(1, $checkIn->diff($checkOut)->days);
+
+    $rates = [
+        'Single' => 2000,
+        'Double' => 3000,
+        'Family' => 4500,
+    ];
+    $ratePerNight = $rates[$booking->room_type] ?? 2500;
+
+    $booking->nights = $nights;
+    $booking->rate_per_night = $ratePerNight;
+
+    return view('customerViewBooking', compact('booking'));
+}
+
+public function customerCancelBooking(Request $request, $id)
+{
+    $customerId = Session::get('customer_id');
+    if (!$customerId) {
+        return redirect()->route('main')->with('error', 'Please log in to manage your bookings.');
+    }
+
+    $booking = DB::table('booking')
+        ->where('id', $id)
+        ->where('customer_id', $customerId)
+        ->first();
+
+    if (!$booking) {
+        return redirect()->route('customerDashboard')->with('error', 'Booking not found.');
+    }
+
+    if (!in_array($booking->status, ['Pending', 'Confirmed'])) {
+        return redirect()->route('customer.viewBooking', $id)
+            ->with('error', 'Only pending or confirmed bookings can be cancelled.');
+    }
+
+    DB::table('booking')
+        ->where('id', $id)
+        ->update([
+            'status' => 'Cancelled',
+            'updated_at' => now(),
+        ]);
+
+    // Free up the room
+    DB::table('room')
+        ->where('id', $booking->room_id)
+        ->update(['status' => 'Available']);
+
+    $this->logActivity($customerId, 'Booking Cancelled', "Member cancelled booking #{$booking->id}");
+
+    return redirect()->route('customerDashboard')
+        ->with('success', 'Your booking has been cancelled.');
+}
+
+public function updateBookingStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => ['required', 'string', 'in:Pending,Confirmed,Cancelled,Occupied,Completed'],
+    ]);
+
+    $booking = DB::table('booking')->where('id', $id)->first();
+
+    if (!$booking) {
+        return redirect()->route('bookedRooms')->with('error', 'Booking not found.');
+    }
+
+    $newStatus = $request->status;
+
+    // Update booking status
+    DB::table('booking')
+        ->where('id', $id)
+        ->update([
+            'status' => $newStatus,
+            'updated_at' => now(),
+        ]);
+
+    // Sync room status with booking status where appropriate
+    if (in_array($newStatus, ['Cancelled', 'Completed'])) {
+        DB::table('room')
+            ->where('id', $booking->room_id)
+            ->update(['status' => 'Available']);
+    } elseif ($newStatus === 'Occupied') {
+        DB::table('room')
+            ->where('id', $booking->room_id)
+            ->update(['status' => 'Occupied']);
+    }
+
+    // Log activity
+    $adminId = Session::get('id');
+    if ($adminId) {
+        $this->logActivity(
+            $adminId,
+            'Booking Status Updated',
+            "Updated booking #{$booking->id} status to {$newStatus}",
+            $booking->id,
+            'booking'
+        );
+    }
+
+    return redirect()
+        ->route('viewBooking', $id)
+        ->with('success', 'Booking status updated successfully.');
+}
+
+public function storeBookingPayment(Request $request, $id)
+{
+    $booking = DB::table('booking')->where('id', $id)->first();
+
+    if (!$booking) {
+        return redirect()->route('bookedRooms')->with('error', 'Booking not found.');
+    }
+
+    $request->validate([
+        'payment_option' => ['required', 'string', 'max:100'],
+        'amount' => ['required', 'numeric', 'min:0'],
+    ]);
+
+    // Either create or update a single payment record per booking
+    $existingPayment = DB::table('payment')->where('booking_id', $id)->first();
+
+    if ($existingPayment) {
+        DB::table('payment')
+            ->where('id', $existingPayment->id)
+            ->update([
+                'payment_option' => $request->payment_option,
+                'amount' => $request->amount,
+                'paid_at' => now(),
+            ]);
+    } else {
+        DB::table('payment')->insert([
+            'booking_id' => $booking->id,
+            'customer_id' => $booking->customer_id,
+            'payment_option' => $request->payment_option,
+            'amount' => $request->amount,
+            'paid_at' => now(),
+        ]);
+    }
+
+    // Update booking total_amount and optionally status
+    $newTotal = (float) $request->amount;
+
+    DB::table('booking')
+        ->where('id', $id)
+        ->update([
+            'total_amount' => $newTotal,
+            'status' => $booking->status === 'Pending' ? 'Confirmed' : $booking->status,
+            'updated_at' => now(),
+        ]);
+
+    // Log activity
+    $adminId = Session::get('id');
+    if ($adminId) {
+        $this->logActivity(
+            $adminId,
+            'Payment Recorded',
+            "Recorded payment for booking #{$booking->id}, amount ₱{$newTotal}",
+            $booking->id,
+            'booking'
+        );
+    }
+
+    return redirect()
+        ->route('viewBooking', $id)
+        ->with('success', 'Payment recorded successfully.');
+}
+
 
 
 public function guest_book_room(Request $request)
 {
+    // If a member is logged in, redirect them to the member booking form
+    if (Session::has('customer_id')) {
+        return redirect()->route('memberBooking')
+            ->with('error', 'You are logged in as a member. Please use the member booking form.');
+    }
+
     // 1. Validate the form data
     $request->validate([
         'check_in' => 'required|date|after_or_equal:today',
         'check_out' => 'required|date|after:check_in',
         'room_type' => 'required|string',
         'guests' => 'required',
-        // If user is NOT logged in (no session ID), require these fields:
-        'fname' => Session::has('id') ? 'nullable' : 'required|string',
-        'lname' => Session::has('id') ? 'nullable' : 'required|string',
-        'email' => Session::has('id') ? 'nullable' : 'required|email',
-        'phone' => Session::has('id') ? 'nullable' : 'required|string',
+        // Guest-only booking requires full details
+        'fname' => 'required|string',
+        'lname' => 'required|string',
+        'email' => 'required|email',
+        'phone' => 'required|string',
     ]);
 
-    // 2. Determine Customer ID
-    $customerId = null;
+    // 2. Determine Customer ID for a pure guest booking
+    // Check if this email already exists in customers table
+    $existingCustomer = DB::table('customers')->where('email', $request->email)->first();
 
-    if (Session::has('id')) {
-        // SCENARIO A: User is logged in
-        $customerId = Session::get('id');
+    if ($existingCustomer) {
+        $customerId = $existingCustomer->id;
     } else {
-        // SCENARIO B: User is a Guest
-        // Check if this email already exists in customers table
-        $existingCustomer = DB::table('customers')->where('email', $request->email)->first();
-
-        if ($existingCustomer) {
-            $customerId = $existingCustomer->id;
-        } else {
-            // Create a new customer record
-            // FIX: Use 'fname' and 'lname' directly from the request
-            $customerId = DB::table('customers')->insertGetId([
-                'Fname' => $request->fname,  // <--- Changed from $fname
-                'Lname' => $request->lname,  // <--- Changed from $lname
-                'email' => $request->email,
-                'contact' => $request->phone,
-                'customer_type' => 'Guest',
-                'password' => Hash::make('welcome123'), 
-                'dob' => date('Y-m-d'),
-                'profile' => 'images/default_profile.png',
-                'created_at' => now()
-            ]);
-        }
+        // Create a new customer record as Guest
+        $customerId = DB::table('customers')->insertGetId([
+            'Fname' => $request->fname,
+            'Lname' => $request->lname,
+            'email' => $request->email,
+            'contact' => $request->phone,
+            'customer_type' => 'Guest',
+            'password' => Hash::make('welcome123'),
+            'dob' => date('Y-m-d'),
+            'profile' => 'images/default_profile.png',
+            'created_at' => now()
+        ]);
     }
 
     // 3. Find an Available Room of the requested type
@@ -195,26 +439,106 @@ public function guest_book_room(Request $request)
         return redirect()->back()->with('error', "Sorry, no {$request->room_type} rooms are currently available.");
     }
 
-    // 4. Create the Booking
+    // 4. Compute simple total amount (rate per night x nights)
+    $checkIn  = new \DateTime($request->check_in);
+    $checkOut = new \DateTime($request->check_out);
+    $nights = max(1, $checkIn->diff($checkOut)->days);
+
+    // Simple hard-coded rate map; could be moved to a config or table later
+    $rates = [
+        'Single' => 2000,
+        'Double' => 3000,
+        'Family' => 4500,
+    ];
+    $ratePerNight = $rates[$room->room_type] ?? 2500;
+    $totalAmount = $ratePerNight * $nights;
+
+    // 5. Create the Booking
     DB::table('booking')->insert([
         'customer_id' => $customerId,
         'room_id' => $room->id,
         'check_in_date' => $request->check_in,
         'check_out_date' => $request->check_out,
         'status' => 'Pending',
-        'total_amount' => 0,
+        'total_amount' => $totalAmount,
         'created_at' => now()
     ]);
 
-    // 5. Update the Room Status
+    // 6. Update the Room Status
     DB::table('room')->where('id', $room->id)->update(['status' => 'Occupied']);
 
-    // 6. Log Activity
+    // 7. Log Activity
     if (Session::has('id')) {
         $this->logActivity(Session::get('id'), 'Room Booked', "Booked Room {$room->room_number}");
     }
 
     return redirect()->route('main')->with('success', 'Booking submitted successfully! We will contact you shortly.');
+}
+
+public function member_book_room(Request $request)
+{
+    // Only allow logged-in customers
+    if (!Session::has('customer_id')) {
+        return redirect()->route('main')
+            ->with('error', 'Please log in to your account to book as a member.');
+    }
+
+    // 1. Validate the form data
+    $request->validate([
+        'check_in' => 'required|date|after_or_equal:today',
+        'check_out' => 'required|date|after:check_in',
+        'room_type' => 'required|string',
+        'guests' => 'required',
+    ]);
+
+    // Logged-in member
+    $customerId = Session::get('customer_id');
+
+    // 3. Find an Available Room of the requested type
+    $room = DB::table('room')
+        ->where('room_type', $request->room_type)
+        ->where(function($q) {
+            $q->where('status', 'Available')
+              ->orWhere('status', 'available');
+        })
+        ->first();
+
+    if (!$room) {
+        return redirect()->back()->with('error', "Sorry, no {$request->room_type} rooms are currently available.");
+    }
+
+    // 4. Compute simple total amount (rate per night x nights)
+    $checkIn  = new \DateTime($request->check_in);
+    $checkOut = new \DateTime($request->check_out);
+    $nights = max(1, $checkIn->diff($checkOut)->days);
+
+    $rates = [
+        'Single' => 2000,
+        'Double' => 3000,
+        'Family' => 4500,
+    ];
+    $ratePerNight = $rates[$room->room_type] ?? 2500;
+    $totalAmount = $ratePerNight * $nights;
+
+    // 5. Create the Booking
+    $bookingId = DB::table('booking')->insertGetId([
+        'customer_id' => $customerId,
+        'room_id' => $room->id,
+        'check_in_date' => $request->check_in,
+        'check_out_date' => $request->check_out,
+        'status' => 'Pending',
+        'total_amount' => $totalAmount,
+        'created_at' => now()
+    ]);
+
+    // 6. Update the Room Status
+    DB::table('room')->where('id', $room->id)->update(['status' => 'Occupied']);
+
+    // 7. Log Activity
+    $this->logActivity($customerId, 'Room Booked', "Member booked Room {$room->room_number} (Booking #{$bookingId})");
+
+    return redirect()->route('customer.viewBooking', $bookingId)
+        ->with('success', 'Your booking has been submitted successfully!');
 }
 
 
@@ -354,7 +678,6 @@ public function save_user(Request $request)
 
 
     public function auth_user(Request $request){
-        // ... (Your existing auth_user method)
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -362,30 +685,49 @@ public function save_user(Request $request)
 
         $email = $request->email;
         $pass = $request->password;
+        $loginType = $request->input('login_type'); // 'admin' or 'customer' from the form
 
-        $check_user = DB::table('admin')
-            ->where('email', $email)
-            ->first();
+        // If login_type is admin, ONLY check admin table
+        if ($loginType === 'admin') {
+            $check_user = DB::table('admin')
+                ->where('email', $email)
+                ->first();
 
-        if($check_user){
-            if(Hash::check($pass, $check_user->password)) { 
-                
+            if ($check_user && Hash::check($pass, $check_user->password)) {
                 Session::put('id', $check_user->id ?? $check_user->usr_id);
                 Session::put('profile', $check_user->profile ?? $check_user->usr_profile);
                 Session::put('name', $check_user->name ?? $check_user->usr_name);
-                Session::put('role', $check_user->role);
+                Session::put('email', $check_user->email ?? null);
+                Session::put('role', $check_user->role ?? 'admin');
 
                 // Log login activity
                 $this->logActivity($check_user->id ?? $check_user->usr_id, 'Login', 'User logged in successfully');
 
                 return redirect()->route('dashboard');
-
-            } else {
-                return redirect()->back()->with('error', 'Invalid password.');
             }
-        } else {
-            return redirect()->back()->with('error', 'Invalid email or password.');
+
+            return redirect()->back()->with('error', 'Invalid admin email or password.');
         }
+
+        // If login_type is customer (or missing), ONLY check customers table
+        $customer = DB::table('customers')
+            ->where('email', $email)
+            ->first();
+
+        if ($customer && Hash::check($pass, $customer->password)) {
+            // Clear any admin session to avoid confusion
+            Session::forget(['id', 'profile', 'role']);
+
+            // Store customer-specific session data
+            Session::put('customer_id', $customer->id);
+            Session::put('name', trim(($customer->Fname ?? '') . ' ' . ($customer->Lname ?? '')) ?: $customer->email);
+            Session::put('email', $customer->email);
+            Session::put('role', $customer->customer_type ?? 'customer');
+
+            return redirect()->route('customerDashboard');
+        }
+
+        return redirect()->back()->with('error', 'Invalid email or password.');
     }
 
 

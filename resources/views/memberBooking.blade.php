@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Your Stay - Bluebird Hotel</title>
+    <title>Member Booking - Bluebird Hotel</title>
 
     <link rel="icon" href="{{ asset('images/bluebirdlogo.png') }}" type="image/png">
 
@@ -14,7 +14,6 @@
     <style>
         body {
             min-height: 100vh;
-            /* Matches your homepage background */
             background: url('{{ asset('images/Luxury Room.jpg') }}') center/cover fixed no-repeat;
             font-family: 'Poppins', sans-serif;
             color: #f8fafc;
@@ -24,7 +23,6 @@
             padding: 20px 0;
         }
 
-        /* Dark overlay for readability */
         .overlay {
             position: absolute;
             inset: 0;
@@ -38,7 +36,6 @@
             width: 100%;
         }
 
-        /* Glassmorphism Card Style */
         .booking-card {
             max-width: 600px;
             margin: 0 auto;
@@ -50,7 +47,6 @@
             padding: 2.5rem;
         }
 
-        /* Form Inputs matching homepage */
         .form-control, .form-select {
             border-radius: 14px;
             padding: 0.85rem 1rem;
@@ -71,7 +67,7 @@
         }
 
         .section-title {
-            color: #60a5fa; /* Light blue accent */
+            color: #60a5fa;
             font-weight: 600;
             font-size: 1.1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -80,7 +76,6 @@
             margin-top: 10px;
         }
 
-        /* Gradient Button matching homepage */
         .btn-gradient {
             background: linear-gradient(135deg, #60a5fa, #4338ca);
             border: none;
@@ -115,54 +110,31 @@
         <div class="booking-card">
             
             <div class="text-center mb-4">
-                <a href="{{ route('main') }}" class="text-decoration-none mb-3 d-block">
-                    <i class="fas fa-arrow-left text-white-50 me-2"></i><span class="text-white-50">Back to Home</span>
+                <a href="{{ route('customerDashboard') }}" class="text-decoration-none mb-3 d-block">
+                    <i class="fas fa-arrow-left text-white-50 me-2"></i><span class="text-white-50">Back to Dashboard</span>
                 </a>
-                <h2 class="fw-bold text-white"><i class="fas fa-calendar-check me-2 text-primary"></i>Book Your Stay</h2>
+                <h2 class="fw-bold text-white">
+                    <i class="fas fa-calendar-check me-2 text-primary"></i>
+                    Member Booking
+                </h2>
                 
-                <p class="text-white-50">
-                    You are currently booking as a <strong>Guest</strong>.
-                    @if(Session::has('customer_id'))
-                        <br>
-                        <small>
-                            Logged in as <strong>{{ Session::get('name') }}</strong>? 
-                            <a href="{{ route('memberBooking') }}" class="text-info">Use the member booking form instead.</a>
-                        </small>
-                    @endif
-                </p>
+                @if(Session::has('customer_id'))
+                    <div class="alert alert-success alert-custom bg-success bg-opacity-25 border-success text-white mt-3">
+                        <i class="fas fa-user-check me-2"></i>
+                        Booking as <strong>{{ Session::get('name') }}</strong>
+                        <span class="badge bg-primary ms-2">Member</span>
+                    </div>
+                @else
+                    <div class="alert alert-warning alert-custom bg-warning bg-opacity-25 border-warning text-white mt-3">
+                        Please log in to your account to use the member booking form.
+                    </div>
+                @endif
             </div>
 
-            <form method="POST" action="{{ route('guest_book_room') }}" id="bookingForm">
+            <form method="POST" action="{{ route('member_book_room') }}" id="memberBookingForm">
                 @csrf
 
-                <div class="section-title">Guest Information</div>
-                
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">First Name</label>
-                        <input type="text" name="fname" class="form-control" placeholder="First Name" required value="{{ old('fname') }}">
-                        @error('fname') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Last Name</label>
-                        <input type="text" name="lname" class="form-control" placeholder="Last Name" required value="{{ old('lname') }}">
-                        @error('lname') <small class="text-danger">{{ $message }}</small> @enderror
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" name="email" class="form-control" placeholder="john@example.com" required value="{{ old('email') }}">
-                    @error('email') <small class="text-danger">{{ $message }}</small> @enderror
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Contact Number</label>
-                    <input type="text" name="phone" class="form-control" placeholder="+1 234 567 890" required value="{{ old('phone') }}">
-                    @error('phone') <small class="text-danger">{{ $message }}</small> @enderror
-                </div>
-
-                <div class="section-title mt-4">Reservation Details</div>
+                <div class="section-title mt-2">Reservation Details</div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
@@ -196,14 +168,15 @@
                         <option value="3" {{ old('guests') == '3' ? 'selected' : '' }}>3 Guests</option>
                         <option value="4" {{ old('guests') == '4' ? 'selected' : '' }}>4+ Guests</option>
                     </select>
+                    @error('guests') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-gradient text-white shadow" onclick="confirmBooking()">
+                    <button type="button" class="btn btn-gradient text-white shadow" onclick="confirmMemberBooking()">
                         <i class="fas fa-paper-plane me-2"></i>
-                        @if(Session::has('id')) Confirm Booking @else Book Now @endif
+                        Confirm Member Booking
                     </button>
-                    <a href="{{ route('main') }}" class="btn btn-outline-light" onclick="return confirmBack(event)">Cancel</a>
+                    <a href="{{ route('customerDashboard') }}" class="btn btn-outline-light" onclick="return confirmBack(event)">Cancel</a>
                 </div>
             </form>
         </div>
@@ -212,8 +185,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/swift-alerts.js') }}"></script>
     <script>
-        function confirmBooking() {
-            const form = document.getElementById('bookingForm');
+        function confirmMemberBooking() {
+            const form = document.getElementById('memberBookingForm');
             const checkIn = document.getElementById('check_in').value;
             const checkOut = document.getElementById('check_out').value;
             
@@ -229,7 +202,7 @@
             if(typeof showSwiftConfirm === 'function') {
                 showSwiftConfirm(
                     'Confirm Booking',
-                    `Are you sure you want to book from ${checkIn} to ${checkOut}?`,
+                    `Are you sure you want to book from ${checkIn} to ${checkOut} as a member?`,
                     function() { form.submit(); },
                     function() { }
                 );
@@ -271,3 +244,5 @@
     </script>
 </body>
 </html>
+
+
