@@ -3,11 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
-<<<<<<< HEAD
--- Generation Time: Dec 03, 2025 at 03:35 PM
-=======
--- Generation Time: Dec 01, 2025 at 01:10 PM
->>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
+-- Generation Time: Dec 05, 2025 at 12:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -22,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `hotel_db2`
+-- Database: `bluebird_hotel`
 --
 
 -- --------------------------------------------------------
@@ -109,14 +105,45 @@ INSERT INTO `activities` (`id`, `user_id`, `action`, `description`, `related_id`
 (61, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-01 03:30:07'),
 (62, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 03:31:06'),
 (63, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-01 03:32:20'),
-<<<<<<< HEAD
 (64, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 03:33:34'),
 (65, 2, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-01 04:12:12'),
 (66, 2, 'Profile Updated', 'Updated profile information', NULL, NULL, '2025-12-01 04:12:33'),
-(67, 2, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 04:27:23');
-=======
-(64, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 03:33:34');
->>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
+(67, 2, 'Logout', 'User logged out', NULL, NULL, '2025-12-01 04:27:23'),
+(68, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-03 06:40:43'),
+(69, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-03 06:48:23'),
+(70, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-03 07:08:14'),
+(71, 1, 'Room Added', 'Added new room: 7 (Single)', NULL, 'room', '2025-12-03 07:08:45'),
+(72, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-03 07:08:53'),
+(73, 15, 'Room Booked', 'Member booked Room 7', NULL, NULL, '2025-12-03 07:09:30'),
+(74, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-03 07:10:12'),
+(75, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-03 07:15:22'),
+(76, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-03 07:23:53'),
+(77, 1, 'Payment Recorded', 'Recorded payment for booking #9, amount ₱100', 9, 'booking', '2025-12-03 07:24:24'),
+(78, 1, 'Payment Recorded', 'Recorded payment for booking #8, amount ₱1200', 8, 'booking', '2025-12-03 07:24:45'),
+(79, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-03 07:38:30'),
+(80, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-03 07:41:38'),
+(81, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-03 07:41:54'),
+(82, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-04 04:22:43'),
+(83, 1, 'Room Updated', 'Updated room: 1 (Type: Single, Status: Unavailable)', 1, 'room', '2025-12-04 04:36:37'),
+(84, 1, 'Room Updated', 'Updated room: 1 (Type: Single, Status: Unavailable)', 1, 'room', '2025-12-04 04:37:24'),
+(85, 1, 'Room Updated', 'Updated room: 1 (Type: Single, Status: Under Maintenance)', 1, 'room', '2025-12-04 04:41:16'),
+(86, 1, 'Room Updated', 'Updated room: 1 (Type: Single, Status: Available)', 1, 'room', '2025-12-04 04:41:42'),
+(87, 1, 'Room Updated', 'Updated room: 1 (Type: Single, Status: Under Maintenance)', 1, 'room', '2025-12-04 04:42:02'),
+(88, 1, 'Logout', 'User logged out', NULL, NULL, '2025-12-04 04:45:13'),
+(89, 2, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-04 04:45:51'),
+(90, 2, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-04 22:34:03'),
+(91, 2, 'Room Added', 'Added new room: 9 (Single)', NULL, 'room', '2025-12-04 22:34:28'),
+(92, 2, 'Logout', 'User logged out', NULL, NULL, '2025-12-04 22:35:17'),
+(93, 1, 'Login', 'User logged in successfully', NULL, NULL, '2025-12-05 02:32:51'),
+(94, 1, 'Room Updated', 'Updated room: 1', 1, 'room', '2025-12-05 02:43:22'),
+(95, 1, 'Room Updated', 'Updated room: 1', 1, 'room', '2025-12-05 02:45:47'),
+(96, 1, 'Profile Updated', 'Updated profile information', NULL, NULL, '2025-12-05 02:56:09'),
+(97, 1, 'Profile Updated', 'Updated profile information', NULL, NULL, '2025-12-05 02:56:19'),
+(98, 1, 'Room Updated', 'Updated room: 1', 1, 'room', '2025-12-05 03:03:42'),
+(99, 1, 'Room Updated', 'Updated room: 1', 1, 'room', '2025-12-05 03:04:12'),
+(100, 1, 'Room Updated', 'Updated room: 1', 1, 'room', '2025-12-05 03:09:41'),
+(101, 1, 'Room Updated', 'Updated room: 1', 1, 'room', '2025-12-05 03:09:57'),
+(102, 1, 'Room Added', 'Added new room: 3 (Single)', NULL, 'room', '2025-12-05 03:12:46');
 
 -- --------------------------------------------------------
 
@@ -138,12 +165,8 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`id`, `profile`, `email`, `password`, `name`, `role`) VALUES
-(1, 'uploads/1763863425_69226b8195b17.jpg', 'admin69@gmail.com', '$2y$10$x5vnMR/MwVIwdhHLU0dACe5/5symnRPwKh1omImBb.XC5Wo.3hYGq', 'Cejay Lelis', 'admin'),
-<<<<<<< HEAD
-(2, 'uploads/1764591153_692d86310785b.jpg', 'admin@admin.com', '$2y$10$hLO7hZnIj1fEe8dIFgjGWehbZfB9e5fG1N2z0qrLMi2rdEQXjsh/.', 'Cejay Lelis', 'admin');
-=======
-(2, 'uploads/1763784126_692135be1c604.jpg', 'admin@admin.com', '$2y$10$hLO7hZnIj1fEe8dIFgjGWehbZfB9e5fG1N2z0qrLMi2rdEQXjsh/.', 'Cejay Lelis', 'admin');
->>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
+(1, 'uploads/1764932179_6932ba5366c91.png', 'admin69@gmail.com', '$2y$10$x5vnMR/MwVIwdhHLU0dACe5/5symnRPwKh1omImBb.XC5Wo.3hYGq', 'Cejay Lelis', 'Admin'),
+(2, 'uploads/1764591153_692d86310785b.jpg', 'admin@admin.com', '$2y$10$hLO7hZnIj1fEe8dIFgjGWehbZfB9e5fG1N2z0qrLMi2rdEQXjsh/.', 'John Doe', 'Assistant admin');
 
 -- --------------------------------------------------------
 
@@ -169,7 +192,9 @@ CREATE TABLE `booking` (
 
 INSERT INTO `booking` (`id`, `customer_id`, `room_id`, `check_in_date`, `check_out_date`, `total_amount`, `status`, `created_at`, `updated_at`) VALUES
 (5, 16, 2, '2025-11-30', '2025-12-01', 0.00, 'Pending', '2025-11-29 16:18:39', NULL),
-(8, 19, 1, '2025-11-30', '2025-12-01', 0.00, 'Pending', '2025-11-29 17:24:10', NULL);
+(8, 19, 1, '2025-11-30', '2025-12-01', 1200.00, 'Confirmed', '2025-11-29 17:24:10', '2025-12-03 07:24:45'),
+(9, 15, 8, '2025-12-03', '2025-12-04', 100.00, 'Confirmed', '2025-12-03 07:09:30', '2025-12-03 07:24:24'),
+(10, 27, 9, '2025-12-05', '2025-12-06', 2000.00, 'Pending', '2025-12-04 22:36:13', NULL);
 
 -- --------------------------------------------------------
 
@@ -186,7 +211,7 @@ CREATE TABLE `customers` (
   `customer_type` varchar(20) NOT NULL DEFAULT 'guest',
   `password` varchar(100) NOT NULL,
   `contact` varchar(100) NOT NULL,
-  `dob` date NOT NULL,
+  `dob` date DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -205,7 +230,9 @@ INSERT INTO `customers` (`id`, `profile`, `Fname`, `Lname`, `email`, `customer_t
 (22, 'uploads/1764475753_692bc36914a74.png', 'Hayato', 'Suzuki', 'suzuki@gmail.com', 'guest', '$2y$12$OenBCWYjWcGXwrDSqdnIee2vwk2c8Zej3J7oTL7Aphzs9hLO9yD6W', '0505050505', '2025-11-30', '2025-11-29 20:09:13'),
 (23, 'uploads/1764475935_692bc41fb56c1.png', 'John', 'Wick', 'wick@gmail.com', 'guest', '$2y$12$pm7cjCEx1IVdepkPlS8c8eF4Ou3sLV4PwSvemd66fcmwsZ2zOzTKW', '04040404', '2025-11-30', '2025-11-29 20:12:16'),
 (24, 'uploads/1764476218_692bc53a4894e.png', 'Vhan', 'Manales', 'vhan@gmail.com', 'guest', '$2y$12$vLdy6rvgJSTShrxPZAMKOe3cODBM0Y/6rHxJfDMwIuRtvRhekh.WW', '0929999900', '2025-11-30', '2025-11-29 20:16:58'),
-(25, 'uploads/1764477214_692bc91ecc93d.png', 'Rick', 'Grimes', 'grimes@gmail.com', 'Member', '$2y$12$8qfVfVDb4Xz6bV00QMLouOyGb2eFVWln63oVksWHQItX3uhgffp1q', '1234567891', '2025-11-30', '2025-11-29 20:33:35');
+(25, 'uploads/1764477214_692bc91ecc93d.png', 'Rick', 'Grimes', 'grimes@gmail.com', 'Member', '$2y$12$8qfVfVDb4Xz6bV00QMLouOyGb2eFVWln63oVksWHQItX3uhgffp1q', '1234567891', '2025-11-30', '2025-11-29 20:33:35'),
+(26, 'images/default_profile.png', 'Kian Mcbyrne', 'Ymbol', 'kiantot@gmail.com', 'Member', '$2y$12$L7b3YmwLV31UlXwAp1Vjc.uNfG6ajdvC6hcoQBIZ.VjZPwlofb25y', '0303303030', '2025-12-03', '2025-12-03 07:21:17'),
+(27, 'images/default_profile.png', 'John', 'Carl', 'carl@gmail.com', 'Guest', '', '54545455', NULL, '2025-12-04 22:33:38');
 
 -- --------------------------------------------------------
 
@@ -227,7 +254,9 @@ CREATE TABLE `payment` (
 --
 
 INSERT INTO `payment` (`id`, `booking_id`, `customer_id`, `payment_option`, `amount`, `paid_at`) VALUES
-(6, NULL, 13, 'Cash', 1000.00, '2025-11-22 04:44:55');
+(6, NULL, 13, 'Cash', 1000.00, '2025-11-22 04:44:55'),
+(7, 9, 15, 'Cash', 100.00, '2025-12-03 07:24:24'),
+(8, 8, 19, 'Card', 1200.00, '2025-12-03 07:24:45');
 
 -- --------------------------------------------------------
 
@@ -238,6 +267,7 @@ INSERT INTO `payment` (`id`, `booking_id`, `customer_id`, `payment_option`, `amo
 CREATE TABLE `room` (
   `id` int(11) NOT NULL,
   `room_number` int(3) NOT NULL,
+  `picture` varchar(255) DEFAULT NULL,
   `room_type` varchar(100) NOT NULL,
   `status` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -246,12 +276,15 @@ CREATE TABLE `room` (
 -- Dumping data for table `room`
 --
 
-INSERT INTO `room` (`id`, `room_number`, `room_type`, `status`) VALUES
-(1, 1, 'Single', 'Occupied'),
-(2, 2, 'Single', 'Occupied'),
-(4, 4, 'Double', 'Occupied'),
-(6, 5, 'Double', 'Occupied'),
-(7, 6, 'Double', 'Occupied');
+INSERT INTO `room` (`id`, `room_number`, `picture`, `room_type`, `status`) VALUES
+(1, 1, 'uploads/rooms/1764932997_6932bd85e71ce.jpg', 'Single', 'Under Maintenance'),
+(2, 2, NULL, 'Single', 'Occupied'),
+(4, 4, NULL, 'Double', 'Occupied'),
+(6, 5, NULL, 'Double', 'Occupied'),
+(7, 6, NULL, 'Double', 'Occupied'),
+(8, 7, NULL, 'Single', 'Occupied'),
+(9, 9, NULL, 'Single', 'Occupied'),
+(10, 3, 'uploads/rooms/1764933166_6932be2e64929.png', 'Single', 'Available');
 
 -- --------------------------------------------------------
 
@@ -336,11 +369,7 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `activities`
 --
 ALTER TABLE `activities`
-<<<<<<< HEAD
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
-=======
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
->>>>>>> ef540fc6984869b42fdf2f38087d77b6bd22ee73
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 
 --
 -- AUTO_INCREMENT for table `admin`
@@ -352,25 +381,25 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `room`
 --
 ALTER TABLE `room`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `staff`
