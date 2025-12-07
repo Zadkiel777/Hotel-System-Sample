@@ -1,221 +1,195 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Student</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #007bff 0%, #6cb2eb 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+@extends('themes.main')
 
-        .container {
-            width: 100%;
-            max-width: 420px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            padding: 30px 25px;
-            box-sizing: border-box;
-        }
+@section('title', 'Add Room')
 
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 25px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            font-size: 14px;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        /* Updated input styling to handle file inputs better */
-        input, select {
-            padding: 10px 12px;
-            margin-bottom: 18px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            width: 100%; /* Ensure full width */
-            box-sizing: border-box; /* Fix padding issues */
-        }
-        
-        /* Specific styling for file input */
-        input[type="file"] {
-            padding: 6px; /* Slightly less padding for file input */
-            background-color: #f8f9fa;
-        }
-
-        input:focus, select:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        .btn-primary, .btn-secondary {
-            padding: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .btn-primary {
-            color: white;
-            background-color: #09a611ff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none; /* Fix link styling */
-            display: inline-block;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 13px;
-            margin-top: -12px;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px 15px;
-            }
-            h2 {
-                font-size: 20px;
-            }
-            .btn-group {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>Add New Room</h2>
-
-    {{-- ✅ IMPORTANT: Added enctype="multipart/form-data" for file upload --}}
-    <form method="POST" action="{{ route('save_room') }}" enctype="multipart/form-data">
-        @csrf
-
-        {{-- ✅ New Picture Input --}}
-        <label>Room Picture</label>
-        <input type="file" name="picture" accept="image/*">
-        @error('picture') <span class="error-message">{{ $message }}</span> @enderror
-
-        <label>Room Number</label>
-        <input type="text" name="room_number" placeholder="Enter Room number" required value="{{ old('room_number') }}">
-        @error('room_number') <span class="error-message">{{ $message }}</span> @enderror
-
-
-        <label>Room Type</label>
-        <select name="room_type" required>
-            <option value="">Select Room Type</option>
-            <option value="Single" {{ old('room_type') == 'Single' ? 'selected' : '' }}>Single</option>
-            <option value="Double" {{ old('room_type') == 'Double' ? 'selected' : '' }}>Double</option>
-            <option value="Family" {{ old('room_type') == 'Family' ? 'selected' : '' }}> Family</option>
-        </select>
-        @error('room_type') <span class="error-message">{{ $message }}</span> @enderror
-
-        
-        <label>Room Status</label>
-        <select name="status" required>
-            <option value="">Room Status</option>
-            <option value="Available" {{ old('status') == 'Available' ? 'selected' : '' }}>Available</option>
-            <option value="Unavailable" {{ old('status') == 'Unavailable' ? 'selected' : '' }}>Unavailable</option>
-            <option value="Occupied" {{ old('status') == 'Occupied' ? 'selected' : '' }}>Occupied</option>
-        </select>
-        @error('status') <span class="error-message">{{ $message }}</span> @enderror
-
-
-        <div class="btn-group">
-            <button type="submit" class="btn-primary" onclick="return confirmRoomSave(event)">Save Room</button>
-            <a href="{{ route('rooms') }}" class="btn-secondary" onclick="return confirmBack(event)">Back</a>
+@section('content_header')
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0"><i class="fas fa-plus mr-1"></i> Add Room</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('rooms') }}">Rooms</a></li>
+                    <li class="breadcrumb-item active">Add</li>
+                </ol>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
+@endsection
 
+@section('content')
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            {{-- Centered and widened card for better layout --}}
+            <div class="col-lg-8 offset-lg-2">
+                <div class="card card-primary shadow-sm">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bed mr-1"></i> Room Details</h3>
+                    </div>
+                    
+                    {{-- Form Start --}}
+                    <form method="POST" action="{{ route('save_room') }}" enctype="multipart/form-data">
+                        @csrf
+                        <div class="card-body">
+                            
+                            {{-- ROW 1: Room Details (3 Columns) --}}
+                            <div class="row">
+                                {{-- Room Number --}}
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="room_number">Room Number <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-door-open"></i></span>
+                                            </div>
+                                            <input type="text" class="form-control" id="room_number" name="room_number" 
+                                                   placeholder="e.g. 101" value="{{ old('room_number') }}" required>
+                                        </div>
+                                        @error('room_number')
+                                            <span class="text-danger small">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Room Type --}}
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="room_type">Room Type <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-th-large"></i></span>
+                                            </div>
+                                            {{-- Style height:auto fixes the squashed input issue --}}
+                                            <select class="form-control" id="room_type" name="room_type" style="height: auto;" required>
+                                                <option value="" disabled selected>Select Type</option>
+                                                <option value="Single" {{ old('room_type') == 'Single' ? 'selected' : '' }}>Single</option>
+                                                <option value="Double" {{ old('room_type') == 'Double' ? 'selected' : '' }}>Double</option>
+                                                <option value="Family" {{ old('room_type') == 'Family' ? 'selected' : '' }}>Family</option>
+                                            </select>
+                                        </div>
+                                        @error('room_type') 
+                                            <span class="text-danger small">{{ $message }}</span> 
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Status --}}
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="status">Status <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+                                            </div>
+                                            {{-- Style height:auto fixes the squashed input issue --}}
+                                            <select class="form-control" id="status" name="status" style="height: auto;" required>
+                                                <option value="" disabled selected>Select Status</option>
+                                                <option value="Available" {{ old('status') == 'Available' ? 'selected' : '' }}>Available</option>
+                                                <option value="Occupied" {{ old('status') == 'Occupied' ? 'selected' : '' }}>Occupied</option>
+                                                <option value="Under Maintenance" {{ old('status') == 'Under Maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                                <option value="Unavailable" {{ old('status') == 'Unavailable' ? 'selected' : '' }}>Unavailable</option>
+                                            </select>
+                                        </div>
+                                        @error('status')
+                                            <span class="text-danger small">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            {{-- ROW 2: Image Upload --}}
+                            <div class="form-group mb-0">
+                                <label for="picture">Room Image</label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="picture" name="picture" accept="image/*">
+                                        <label class="custom-file-label" for="picture">Choose file...</label>
+                                    </div>
+                                </div>
+                                <small class="text-muted">Supported formats: JPG, PNG, JPEG.</small>
+                                @error('picture')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                        </div>
+                        
+                        {{-- Footer Buttons --}}
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="{{ route('rooms') }}" class="btn btn-default" onclick="return confirmBack(event)">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4" onclick="return confirmSaveRoom(event)">
+                                <i class="fas fa-save mr-1"></i> Save Room
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection
+
+@section('scripts')
+{{-- External Scripts --}}
 <script src="{{ asset('js/swift-alerts.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+
 <script>
-    function confirmRoomSave(event) {
+    // Initialize custom file input to show filename selection
+    $(document).ready(function () {
+        bsCustomFileInput.init();
+    });
+
+    // Confirmation Logic for Saving
+    function confirmSaveRoom(event) {
+        event.preventDefault();
         const form = event.target.closest('form');
+        
+        // Grab values for validation
         const roomNumber = form.querySelector('[name="room_number"]').value;
         const roomType = form.querySelector('[name="room_type"]').value;
+        const status = form.querySelector('[name="status"]').value;
         
-        if (!roomNumber || !roomType) {
-            showSwiftError('Validation Error', 'Please fill in all required fields.');
+        // Simple JS validation
+        if (!roomNumber || !roomType || !status) {
+            showSwiftError('Missing Information', 'Please fill in all required fields marked with *.');
             return false;
         }
         
+        // SweetAlert Confirmation
         showSwiftConfirm(
-            'Confirm Save',
-            `Are you sure you want to save room ${roomNumber}?`,
+            'Create Room?',
+            `Are you sure you want to add Room <b>${roomNumber}</b> to the system?`,
             function() {
                 form.submit();
-            },
-            function() {
-                // User cancelled
             }
         );
-        
-        return false;
     }
     
+    // Logic for Back Button
     function confirmBack(event) {
-        event.preventDefault();
-        showSwiftConfirm(
-            'Go Back?',
-            'Are you sure you want to go back? Any unsaved changes will be lost.',
-            function() {
-                window.location.href = '{{ route("rooms") }}';
-            }
-        );
-        return false;
+        // You can add a confirmation check here if you want to prevent accidental navigation
+        // For now, we allow standard link behavior or direct redirect
+        // event.preventDefault();
+        // window.location.href = '{{ route("rooms") }}';
     }
-    
-    // Show success message if room was saved successfully
+
+    // Server-side Session Alerts
     @if(session('success'))
         showSwiftSuccess('Success!', '{{ session("success") }}');
     @endif
     
-    // Show error message if there was an error
     @if(session('error'))
         showSwiftError('Error', '{{ session("error") }}');
     @endif
 </script>
-</body>
-</html>
+@endsection

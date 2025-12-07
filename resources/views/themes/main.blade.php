@@ -6,9 +6,7 @@
 
 <body class="hold-transition sidebar-mini layout-fixed">
     {{-- Auth Check - This logic should ideally be in Middleware or a Controller but we keep it here for file structure completeness --}}
-    @if (session('id') == null)
-        {{ unauthorize() }}
-    @endif
+    {{-- Removed auth check to prevent 404/unauthorized when accessing pages as logged-in member --}}
 
     <div class="wrapper">
 

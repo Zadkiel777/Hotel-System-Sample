@@ -1,65 +1,18 @@
 @extends('themes.main')
 
-{{-- Define the page title --}}
 @section('title', 'Booked Rooms')
 
-{{-- Content Header Section (Breadcrumbs) --}}
 @section('content_header')
-
-<nav class="navbar navbar-expand navbar-white navbar-light">
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-                <i class="fas fa-bars"></i>
-            </a>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="{{ route('dashboard') }}" class="nav-link">Home</a>
-        </li>
-    </ul>
-
-    <form class="form-inline ml-3" action="{{ route('bookedRooms') }}" method="GET">
-        <div class="input-group input-group-sm">
-            <input 
-                class="form-control form-control-navbar" 
-                type="search" 
-                name="search" 
-                placeholder="Search customer or room..."
-                aria-label="Search"
-                value="{{ request('search') }}">
-            <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                    <i class="fas fa-search"></i>
-                </button>
-                @if(request('search'))
-                <a href="{{ route('bookedRooms') }}" class="btn btn-navbar">
-                    <i class="fas fa-times"></i>
-                </a>
-                @endif
-            </div>
-        </div>
-    </form>
-
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                <i class="fas fa-expand-arrows-alt"></i>
-            </a>
-        </li>
-    </ul>
-</nav>
-
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                {{-- Updated Icon and Title --}}
                 <h1 class="m-0"><i class="fas fa-calendar-check mr-1"></i> Booked Rooms</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    {{-- Updated Breadcrumb --}}
-                    <li class="breadcrumb-item active"><i class="fas fa-calendar-check"></i> Booked Rooms</li>
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Bookings</li>
                 </ol>
             </div>
         </div>
@@ -67,104 +20,175 @@
 </div>
 @endsection
 
-{{-- Main Content Block --}}
 @section('content')
 <section class="content">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="card">
-                    {{-- Header --}}
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h3 class="card-title"><i class="fas fa-list mr-1"></i> List of Transactions</h3>
+                <div class="card card-outline card-primary">
+                    
+                    {{-- Header: Title & Search --}}
+                    <div class="card-header">
+                        <h3 class="card-title mt-1">
+                            <i class="fas fa-list mr-1"></i> Transaction List
+                        </h3>
+
+                        <div class="card-tools">
+                            <form action="{{ route('bookedRooms') }}" method="GET">
+                                <div class="input-group input-group-sm" style="width: 250px;">
+                                    <input type="text" name="search" class="form-control float-right" placeholder="Search customer or room..." value="{{ request('search') }}">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
-                    {{-- Table --}}
-                    <div class="table-responsive">
-                        <table id="bookingTable" class="table table-bordered table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-hashtag"></i> ID</th>
-                                    <th><i class="fas fa-user"></i> Customer Name</th>
-                                    <th><i class="fas fa-bed"></i> Room Details</th>
-                                    <th><i class="fas fa-calendar-alt"></i> Stay Dates</th>
-                                    <th><i class="fas fa-info-circle"></i> Status</th>
-                                    <th style="width: 150px" class="text-center">
-                                        <i class="fas fa-tools"></i> Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($bookings as $booking)
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            {{-- Table: Compact, Striped, Hover, No-Wrap --}}
+                            <table id="bookingTable" class="table table-striped table-hover table-sm text-nowrap">
+                                <thead class="thead-light">
                                     <tr>
-                                        <td>{{ $booking->id }}</td>
-                                        <td>
-                                            <strong>{{ $booking->Fname }} {{ $booking->Lname }}</strong><br>
-                                            @php
-                                                $type = strtolower($booking->customer_type ?? 'guest');
-                                            @endphp
-                                            @if($type === 'member')
-                                                <span class="badge badge-primary">Member</span>
-                                            @else
-                                                <span class="badge badge-secondary">Guest</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-info">Room {{ $booking->room_number }}</span>
-                                            <br>
-                                            <small class="text-muted">{{ $booking->room_type }}</small>
-                                        </td>
-                                        <td>
-                                            <small>In:</small> {{ date('M d, Y', strtotime($booking->check_in_date)) }}
-                                            <br>
-                                            <small>Out:</small> {{ date('M d, Y', strtotime($booking->check_out_date)) }}
-                                        </td>
-                                        <td>
-                                            {{-- Logic for Status Color --}}
-                                            @php
-                                                $badgeColor = 'badge-secondary';
-                                                if($booking->status == 'Confirmed') $badgeColor = 'badge-success';
-                                                if($booking->status == 'Pending') $badgeColor = 'badge-warning';
-                                                if($booking->status == 'Cancelled') $badgeColor = 'badge-danger';
-                                                if($booking->status == 'Occupied') $badgeColor = 'badge-primary';
-                                            @endphp
-                                            <span class="badge {{ $badgeColor }}">{{ ucfirst($booking->status) }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center" style="gap: 5px;">
-                                                <a href="{{ route('viewBooking', $booking->id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-eye"></i> View
-                                                </a>
+                                        <th style="width: 50px;">ID</th>
+                                        <th>Customer</th>
+                                        <th>Room Details</th>
+                                        <th>Stay Dates</th>
+                                        <th>Status</th>
+                                        <th class="text-center" style="width: 140px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($bookings as $booking)
+                                        <tr>
+                                            {{-- ID --}}
+                                            <td class="align-middle text-center">{{ $booking->id }}</td>
 
-                                                {{-- Cancel Booking Form --}}
-                                                <form action="{{ route('bookings.updateStatus', $booking->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                                                    @csrf
-                                                    <input type="hidden" name="status" value="Cancelled">
-                                                    <button type="submit" class="btn btn-danger btn-sm">
-                                                        <i class="fas fa-times"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center">
-                                            <i class="fas fa-folder-open mr-1"></i> No booked rooms found.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div> {{-- End .table-responsive --}}
+                                            {{-- Customer Name & Type --}}
+                                            <td class="align-middle">
+                                                <div class="font-weight-bold text-primary">
+                                                    {{ $booking->Fname }} {{ $booking->Lname }}
+                                                </div>
+                                                @php
+                                                    $type = strtolower($booking->customer_type ?? 'guest');
+                                                    $typeBadge = ($type === 'member') ? 'primary' : 'secondary';
+                                                @endphp
+                                                <small class="badge badge-{{ $typeBadge }}">
+                                                    {{ ucfirst($type) }}
+                                                </small>
+                                            </td>
+
+                                            {{-- Room Details --}}
+                                            <td class="align-middle">
+                                                <i class="fas fa-bed text-muted mr-1"></i> 
+                                                <strong>Room {{ $booking->room_number }}</strong>
+                                                <div class="text-muted small pl-4">{{ $booking->room_type }}</div>
+                                            </td>
+
+                                            {{-- Stay Dates --}}
+                                            <td class="align-middle">
+                                                <div class="d-flex flex-column small">
+                                                    <span><span class="text-muted" style="width: 30px; display:inline-block;">In:</span> <strong>{{ date('M d, Y', strtotime($booking->check_in_date)) }}</strong></span>
+                                                    <span><span class="text-muted" style="width: 30px; display:inline-block;">Out:</span> <strong>{{ date('M d, Y', strtotime($booking->check_out_date)) }}</strong></span>
+                                                </div>
+                                            </td>
+
+                                            {{-- Status Badge --}}
+                                            <td class="align-middle">
+                                                @php
+                                                    $status = strtolower($booking->status);
+                                                    $badgeColor = match($status) {
+                                                        'confirmed' => 'success',
+                                                        'pending' => 'warning',
+                                                        'cancelled' => 'danger',
+                                                        'occupied' => 'primary',
+                                                        default => 'secondary',
+                                                    };
+                                                @endphp
+                                                <span class="badge badge-{{ $badgeColor }} px-2 py-1">
+                                                    {{ ucfirst($booking->status) }}
+                                                </span>
+                                            </td>
+
+                                            {{-- Actions --}}
+                                            <td class="text-center align-middle">
+                                                <div class="btn-group btn-group-sm">
+                                                    {{-- View Button --}}
+                                                    <a href="{{ route('viewBooking', $booking->id) }}" 
+                                                       class="btn btn-info" 
+                                                       title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+
+                                                    {{-- Cancel Form --}}
+                                                    <form action="{{ route('bookings.updateStatus', $booking->id) }}" method="POST" style="display: inline-block;">
+                                                        @csrf
+                                                        <input type="hidden" name="status" value="Cancelled">
+                                                        <button type="submit" 
+                                                                class="btn btn-danger" 
+                                                                title="Cancel Booking"
+                                                                style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                                                                onclick="return confirmCancelBooking(event)">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-muted">
+                                                <i class="fas fa-calendar-times fa-3x mb-3 opacity-50"></i><br>
+                                                No bookings found.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                     {{-- Pagination --}}
-                    <div class="d-flex justify-content-center mt-3">
-                        {{ $bookings->links('pagination::bootstrap-5') }}
-                    </div>
+                    @if($bookings->hasPages())
+                        <div class="card-footer clearfix">
+                            <div class="float-right">
+                                {{ $bookings->links('pagination::simple-bootstrap-5') }}
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </section>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/swift-alerts.js') }}"></script>
+<script>
+    function confirmCancelBooking(event) {
+        event.preventDefault();
+        const form = event.target.closest('form');
+        
+        showSwiftConfirm(
+            'Cancel Booking?',
+            'Are you sure you want to cancel this booking? This action cannot be undone.',
+            function() {
+                form.submit();
+            }
+        );
+        return false;
+    }
+
+    @if(session('success'))
+        showSwiftSuccess('Success!', '{{ session("success") }}');
+    @endif
+    
+    @if(session('error'))
+        showSwiftError('Error', '{{ session("error") }}');
+    @endif
+</script>
 @endsection

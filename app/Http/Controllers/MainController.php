@@ -121,7 +121,8 @@ class MainController extends Controller
                 $term = "%{$term}%";
                 $q->where('customers.Fname', 'like', $term)
                   ->orWhere('customers.Lname', 'like', $term)
-                  ->orWhere('room.room_number', 'like', $term) // Allow searching by Room Number
+                  ->orWhere('room.room_number', 'like', $term)
+                  ->orWhere('customers.customer_type', $term) // Allow searching by Room Number
                   ->orWhere('booking.status', 'like', $term);  // Allow searching by Status (e.g., "Pending")
             });
         }
@@ -129,7 +130,7 @@ class MainController extends Controller
 
     // 3. Order by newest bookings first and paginate
     $bookings = $query->orderBy('booking.created_at', 'desc') 
-                      ->paginate(10);
+                    ->simplePaginate(10);
 
     // Keep search term in pagination links
     if ($search) {
@@ -537,7 +538,7 @@ public function member_book_room(Request $request)
     // 7. Log Activity
     $this->logActivity($customerId, 'Room Booked', "Member booked Room {$room->room_number} (Booking #{$bookingId})");
 
-    return redirect()->route('customer.viewBooking', $bookingId)
+    return redirect()->route('customerDashboard')
         ->with('success', 'Your booking has been submitted successfully!');
 }
 
@@ -713,7 +714,7 @@ public function save_user(Request $request)
 
 
 
-   public function auth_user(Request $request){
+    public function auth_user(Request $request){
     $request->validate([
         'email' => 'required|email',
         'password' => 'required',
@@ -796,6 +797,11 @@ public function save_user(Request $request)
      * Show the dashboard view.
      */
     public function dashboard(){
+        // Check if admin is logged in
+        if (!Session::has('id')) {
+            return redirect()->route('main')->with('error', 'Please log in as an admin to access the dashboard.');
+        }
+
         // This is the destination page after a successful login!
         $totaladmin = DB::table('admin')->count();
         $totalrooms = DB::table('room')->distinct('room_type')->count('room_type');
@@ -996,7 +1002,7 @@ public function users(Request $request)
     $columnExists = DB::select("SHOW COLUMNS FROM customers LIKE 'profile'");
     
     // Fetch the specific student by ID
-    $selectFields = ['id', 'Fname', 'Lname', 'email', 'contact', 'dob', 'created_at'];
+    $selectFields = ['id', 'Fname', 'Lname', 'email', 'customer_type', 'contact', 'dob', 'created_at'];
     if (!empty($columnExists)) {
         $selectFields[] = 'profile';
     }
@@ -1192,8 +1198,8 @@ public function rooms(Request $request)
     }
 
     // Continue with ordering and pagination
-    $room = $roomQuery->orderBy('id', 'asc')
-                         ->paginate(10); // <-- show 10 users per page
+    $room = $roomQuery->orderBy('room_number', 'asc')
+                         ->simplePaginate(10); // <-- show 10 users per page
 
     // Keep the search query in pagination links
     if ($search) {
