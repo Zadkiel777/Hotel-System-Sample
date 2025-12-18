@@ -8,21 +8,14 @@ use Illuminate\Support\Facades\Session;
 
 class CustomerAuthMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
-    public function handle(Request $request, Closure $next)
-    {
-        if (!Session::has('customer_id')) {
-            return redirect()->route('main')->with('error', 'Please log in to access your dashboard.');
-        }
 
-        return $next($request);
+public function handle(Request $request, Closure $next)
+{
+    // MUST have customer_id AND the role must be customer
+    if (!Session::has('customer_id') || Session::get('role') !== 'customer') {
+        return redirect()->route('main')->with('error', 'Access denied. Customers only.');
     }
-}
 
-session()->has('customer_id');
+    return $next($request);
+}
+}

@@ -156,7 +156,11 @@ class MainController extends Controller
 
 
     public function customerDashboard(){
-        // If a customer is not logged in, show an empty but friendly dashboard
+        // If a customer is not logged in, show an empty but friendly 
+        if (!Session::has('customer_id')) {
+        return redirect()->route('main')->with('error', 'Access Denied.');
+        }
+
         $customerId = Session::get('customer_id');
 
         if (!$customerId) {
@@ -801,15 +805,17 @@ public function save_user(Request $request)
 }
 
 
-    public function auth_user(Request $request){
+public function auth_user(Request $request)
+{
+    // 1. Validate the incoming request
     $request->validate([
-        'email' => 'required|email',
+        'email'    => 'required|email',
         'password' => 'required',
     ]);
 
     $email = $request->email;
     $pass = $request->password;
-    $loginType = $request->input('login_type'); // 'admin' or 'customer'
+    $loginType = $request->input('login_type'); // Expecting 'admin' or 'customer'
 
     // ==========================================
     // 1. ADMIN LOGIN LOGIC
@@ -818,65 +824,65 @@ public function save_user(Request $request)
         $check_user = DB::table('admin')
             ->where('email', $email)
             ->first();
-        // CHECK A: Does the account exist?
+
         if (!$check_user) {
             return redirect()->back()->with('error', 'No admin account found with this email.');
         }
 
-        // CHECK B: Is the password correct?
         if (Hash::check($pass, $check_user->password)) {
-            // Login Success
+            // CRITICAL: Clear all previous session data to prevent role crossover
+            Session::flush();
+
+            // Set Admin Specific Session Keys
             Session::put('id', $check_user->id ?? $check_user->usr_id);
             Session::put('profile', $check_user->profile ?? $check_user->usr_profile);
             Session::put('name', $check_user->name ?? $check_user->usr_name);
-            Session::put('email', $check_user->email ?? null);
-            Session::put('role', $check_user->role ?? 'admin');
+            Session::put('email', $check_user->email);
+            Session::put('role', 'admin'); // Hardcoded 'admin' for security
 
-            $this->logActivity($check_user->id ?? $check_user->usr_id, 'Login', 'User logged in successfully');
+            $this->logActivity(Session::get('id'), 'Login', 'Admin logged in successfully');
 
             return redirect()->route('dashboard');
         } else {
-            // Password incorrect
             return redirect()->back()->with('error', 'Incorrect password for admin account.');
         }
     }
 
-    // ... (Admin logic remains the same) ...
-
     // ==========================================
     // 2. CUSTOMER LOGIN LOGIC
     // ==========================================
+    // If not 'admin', we treat as a customer login attempt
     $customer = DB::table('customers')
         ->where('email', $email)
         ->first();
 
-    // CHECK A: Does the account exist?
     if (!$customer) {
         return redirect()->back()->with('error', 'No account found with this email. Please register first.');
     }
 
-    // CHECK B: Does the account have a password? (Handle Guests)
-    // We check if the password column is null or an empty string
+    // Handle Guests who don't have passwords
     if (empty($customer->password)) {
-        return redirect()->back()->with('error', 'This account is a Guest account and does not have a password. Please contact support or register a new account.');
+        return redirect()->back()->with('error', 'This is a Guest account. Please register to create a password.');
     }
 
-    // CHECK C: Is the password correct?
     if (Hash::check($pass, $customer->password)) {
-        // Login Success
-        Session::forget(['id', 'profile', 'role']); 
+        // CRITICAL: Clear all previous session data (Wipes any Admin 'id' that might exist)
+        Session::flush();
 
+        // Set Customer Specific Session Keys
         Session::put('customer_id', $customer->id);
         Session::put('name', trim(($customer->Fname ?? '') . ' ' . ($customer->Lname ?? '')) ?: $customer->email);
         Session::put('email', $customer->email);
-        Session::put('role', $customer->customer_type ?? 'customer');
+        Session::put('role', 'customer'); // Hardcoded 'customer' for security
+        
+        // Optional: you can still keep the specific customer type (Member/Guest) in a separate key
+        Session::put('customer_type', $customer->customer_type ?? 'Member');
 
         return redirect()->route('customerDashboard');
     } else {
-        // Password incorrect
         return redirect()->back()->with('error', 'Incorrect password.');
     }
-    }
+}
 
 
     /**
@@ -1570,16 +1576,14 @@ public function admins(Request $request)
 
 public function customer_logout(Request $request)
 {
-    // Log logout activity before clearing session
-    $customerId =Session::get('id');
-
-    // Clear all session data
+    // Clear only customer related sessions to be safe, or flush all
+    $request->session()->forget(['customer_id', 'name', 'email']);
+    
+    // Or keep your flush:
     $request->session()->flush();
 
-    // Redirect to your login page (welcome.blade.php)
     return redirect()->route('main')->with('success', 'You have been logged out successfully.');
 }
-
 
 
 public function logout(Request $request)
