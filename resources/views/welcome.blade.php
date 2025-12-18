@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        /* ADDED: Smooth Scrolling */
+        /* --- GLOBAL STYLES --- */
         html {
             scroll-behavior: smooth;
         }
@@ -23,7 +23,7 @@
             color: #f8fafc;
         }
         .overlay {
-            position: absolute;
+            position: fixed;
             inset: 0;
             background: linear-gradient(120deg, rgba(9, 12, 32, 0.85), rgba(15, 32, 55, 0.7));
             z-index: 0;
@@ -93,34 +93,122 @@
         footer {
             color: #94a3b8;
         }
+
+        /* --- FLIP CARD STYLES --- */
+        .flip-container {
+            perspective: 1000px;
+            height: 350px; /* Fixed height for consistency */
+            cursor: pointer;
+        }
+
+        .flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        /* Class to trigger flip */
+        .flip-container.flipped .flip-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-front, .flip-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05); /* Subtle glass effect */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .flip-front {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flip-back {
+            transform: rotateY(180deg);
+            background: rgba(15, 23, 42, 0.95); /* Darker background for text readability */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .room-image-wrapper {
+            flex-grow: 1;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .room-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .flip-container:hover .flip-front img {
+            transform: scale(1.1);
+        }
+
+        .feature-list-flip {
+            text-align: left;
+            width: 100%;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            padding-left: 0;
+        }
+        .feature-list-flip li {
+            list-style: none;
+            margin-bottom: 0.5rem;
+        }
+        .feature-list-flip i {
+            width: 25px;
+            color: #60a5fa;
+        }
     </style>
 </head>
 <body class="position-relative">
     <div class="overlay"></div>
     <div class="page-wrapper">
+    
+    {{-- Navbar --}}
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">
-            <img src="{{ asset('images/bluebirdlogo.png') }}" alt="Bluebird Hotel Logo" height="30" class="d-inline-block align-text-top me-2">
-            Bluebird Hotel
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto gap-3">
-                <li class="nav-item"><a class="nav-link text-white-50" href="#amenities">Amenities</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#reviews">Reviews</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#about">About</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="{{ route('guestbooking') }}">Booking</a></li>
-                <li class="nav-item"><a class="nav-link text-white-50" href="#login">Login</a></li>
-            </ul>
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <img src="{{ asset('images/bluebirdlogo.png') }}" alt="Bluebird Hotel Logo" height="30" class="d-inline-block align-text-top me-2">
+                Bluebird Hotel
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto gap-3">
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#amenities">Amenities</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#rooms">Rooms</a></li> {{-- Updated Link --}}
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#reviews">Reviews</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ route('guestbooking') }}">Booking</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#login">Login</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
         <div class="container hero-section">
-            <div class="row g-4 align-items-center">
+            {{-- Hero & Login --}}
+            <div class="row g-4 align-items-center mb-5">
                 <div class="col-lg-6">
                     <div class="hero-card text-white">
                         <span class="badge bg-primary bg-opacity-25 text-white rounded-pill px-3 py-2 mb-3">
@@ -189,7 +277,7 @@
                                 </form>
                             </div>
                             <div class="tab-pane fade show active" id="user-login" role="tabpanel">
-                                <div class="text-center text-white-50 mb-4">
+                                <div class="text-white-50 mb-4">
                                     <form action="{{ route('auth_user') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="login_type" value="customer">
@@ -209,15 +297,13 @@
                                 <a href="{{ route('register') }}" class="btn btn-outline-light w-100 rounded-4">
                                     <i class="fas fa-user-plus me-2"></i>Create an Account
                                 </a>
-                                <small class="d-block mt-3 text-white-50 text-center">
-                                    Already booked? Contact reception for details.
-                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            {{-- Amenities --}}
             <div class="info-section mt-5 p-4" id="amenities">
                 <div class="row g-4">
                     <div class="col-lg-4">
@@ -246,6 +332,99 @@
                 </div>
             </div>
 
+            {{-- ROOMS SECTION (FLIP CARDS) --}}
+            <div class="info-section mt-5 p-4" id="rooms">
+                <div class="text-center mb-4">
+                    <h4 class="fw-bold">Luxurious Accommodations</h4>
+                    <p class="text-white-50">Explore our collection of elegantly appointed rooms,
+                    each designed to offer a unique blend of modern comfort and timeless style.
+                    Find your perfect sanctuary.</p>
+                </div>
+                <div class="row g-4">
+                    {{-- Room 1 --}}
+                    <div class="col-md-4">
+                        <div class="flip-container" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-inner">
+                                <div class="flip-front">
+                                    <div class="room-image-wrapper">
+                                        <img src="{{ asset('images/Deluxe Room.jpg') }}" alt="Deluxe Room">
+                                    </div>
+                                    <div class="p-3 text-center bg-transparent mt-auto position-absolute bottom-0 w-100" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                                        <h5 class="fw-bold mb-1">Deluxe Room</h5>
+                                    </div>
+                                </div>
+                                <div class="flip-back">
+                                    <h5 class="fw-bold text-white mb-3">Deluxe Amenities</h5>
+                                    <ul class="list-unstyled feature-list-flip">
+                                        <li><i class="fas fa-bed"></i> 1 Queen Sized Bed</li>
+                                        <li><i class="fas fa-wifi"></i> High-Speed Wifi</li>
+                                        <li><i class="fas fa-tv"></i> 42" Smart TV</li>
+                                        <li><i class="fas fa-wind"></i> Air Conditioning</li>
+                                    </ul>
+                                    <p>Only For ₱3000 Per Night </p>
+                                    <a href="{{ route('guestbooking') }}" class="btn btn-gradient btn-sm w-100 mt-2">Book Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Room 2 --}}
+                    <div class="col-md-4">
+                        <div class="flip-container" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-inner">
+                                <div class="flip-front">
+                                    <div class="room-image-wrapper">
+                                        <img src="{{ asset('images/Luxury Room.jpg') }}" alt="Luxury Room">
+                                    </div>
+                                    <div class="p-3 text-center bg-transparent mt-auto position-absolute bottom-0 w-100" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                                        <h5 class="fw-bold mb-1">Luxury Suite</h5>
+                                    </div>
+                                </div>
+                                <div class="flip-back">
+                                    <h5 class="fw-bold text-white mb-3">Luxury Amenities</h5>
+                                    <ul class="list-unstyled feature-list-flip">
+                                        <li><i class="fas fa-bed"></i> 1 King Sized Bed</li>
+                                        <li><i class="fas fa-hot-tub"></i> Private Jacuzzi</li>
+                                        <li><i class="fas fa-wine-glass"></i> Mini Bar</li>
+                                        <li><i class="fas fa-concierge-bell"></i> Room Service</li>
+                                    </ul>
+                                    <p>Only For ₱4000 Per Night </p>
+                                    <a href="{{ route('guestbooking') }}" class="btn btn-gradient btn-sm w-100 mt-2">Book Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Room 3 --}}
+                    <div class="col-md-4">
+                        <div class="flip-container" onclick="this.classList.toggle('flipped')">
+                            <div class="flip-inner">
+                                <div class="flip-front">
+                                    <div class="room-image-wrapper">
+                                        <img src="{{ asset('images/Standard room.jpg') }}" alt="Standard Room">
+                                    </div>
+                                    <div class="p-3 text-center bg-transparent mt-auto position-absolute bottom-0 w-100" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                                        <h5 class="fw-bold mb-1">Standard Room</h5>
+                                    </div>
+                                </div>
+                                <div class="flip-back">
+                                    <h5 class="fw-bold text-white mb-3">Standard Amenities</h5>
+                                    <ul class="list-unstyled feature-list-flip">
+                                        <li><i class="fas fa-bed"></i> 1 Double Bed</li>
+                                        <li><i class="fas fa-shower"></i> Hot & Cold Shower</li>
+                                        <li><i class="fas fa-wifi"></i> Free Wifi</li>
+                                        <li><i class="fas fa-fan"></i> Ceiling Fan</li>
+                                    </ul>
+                                    <p>Only For ₱2000 Per Night </p>
+                                    <a href="{{ route('guestbooking') }}" class="btn btn-gradient btn-sm w-100 mt-2">Book Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Reviews --}}
             <div class="info-section mt-5 p-4" id="reviews">
                 <div class="text-center mb-4">
                     <h4 class="fw-bold">Guest Experiences</h4>
@@ -306,6 +485,7 @@
                 </div>
             </div>
 
+            {{-- About --}}
             <div class="info-section mt-5 p-4" id="about">
                 <div class="row align-items-center g-4">
                     <div class="col-lg-6">

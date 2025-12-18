@@ -32,7 +32,7 @@
                 {{-- Dashboard --}}
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" 
-                       class="nav-link {{ Route::is('dashboard') ? 'active' : '' }}">
+                        class="nav-link {{ Route::is('dashboard') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-desktop"></i>
                         <p>Dashboard</p>
                     </a>
@@ -69,14 +69,6 @@
                        class="nav-link {{ Route::is('rooms') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-bed"></i>
                         <p>Rooms</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('staffs') }}"
-                       class="nav-link {{ Route::is('staffs') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-user-tie"></i>
-                        <p>Staff</p>
                     </a>
                 </li>
 

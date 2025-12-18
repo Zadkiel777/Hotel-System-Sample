@@ -24,3 +24,5 @@ class CustomerAuthMiddleware
         return $next($request);
     }
 }
+
+session()->has('customer_id');

@@ -27,15 +27,133 @@ class MainController extends Controller
         return view('register');
     }
 
-    public function addstaff(){
-        // Assumes your add staff blade file is at resources/views/addstaff.blade.php
-        return view('addstaff');
-    }
 
     public function addroom(){
         // Assumes your add room blade file is at resources/views/addroom.blade.php
         return view('addroom');
     }
+
+
+    /**
+     * Display the Checkout / Invoice page.
+     */
+    public function showCheckout($id)
+{
+    // 1. UPDATED CHECK: Allow if Admin (id) OR Customer (customer_id) is logged in
+    if (!Session::has('id') && !Session::has('customer_id')) {
+        return redirect()->route('main')->with('error', 'Please log in to access this page.');
+    }
+
+    // 2. Fetch booking (Rest of the code remains the same)
+    $booking = DB::table('booking')
+        ->join('customers', 'booking.customer_id', '=', 'customers.id')
+        ->join('room', 'booking.room_id', '=', 'room.id')
+        ->leftJoin('payment', 'payment.booking_id', '=', 'booking.id') 
+        ->where('booking.id', $id)
+        ->select(
+            'booking.*', 
+            'customers.Fname', 'customers.Lname', 'customers.email', 'customers.contact',
+            'room.room_number', 'room.room_type', 
+            'payment.amount as paid_amount'
+        )
+        ->first();
+
+    if (!$booking) {
+        return redirect()->back()->with('error', 'Booking not found.');
+    }
+
+    // 3. Security Check: If it's a customer, ensure they own this booking
+    if (Session::has('customer_id')) {
+        if ($booking->customer_id != Session::get('customer_id')) {
+            return redirect()->route('customerDashboard')->with('error', 'Unauthorized access.');
+        }
+    }
+
+    // 4. Calculate Nights
+    $checkIn = new \DateTime($booking->check_in_date);
+    $checkOut = new \DateTime($booking->check_out_date);
+    $nights = max(1, $checkIn->diff($checkOut)->days);
+
+    // 5. Calculate Rate
+    $rates = [
+        'Standard' => 2000,
+        'Deluxe' => 3000,
+        'Luxury' => 4500,
+    ];
+    $ratePerNight = $rates[$booking->room_type] ?? 2500;
+    
+    return view('checkout', compact('booking', 'nights', 'ratePerNight'));
+}
+
+    /**
+     * Process the Checkout (Update DB).
+     */
+    public function checkoutBooking(Request $request, $id)
+{
+    // 1. Validate the new input
+    $request->validate([
+        'payment_option' => 'required|string'
+    ]);
+
+    // 2. Auth Check
+    if (!Session::has('id') && !Session::has('customer_id')) {
+        return redirect()->route('main')->with('error', 'Unauthorized.');
+    }
+
+    $booking = DB::table('booking')->where('id', $id)->first();
+
+    if (!$booking || $booking->status === 'Completed') {
+        return redirect()->back()->with('error', 'Booking invalid or already completed.');
+    }
+
+    // 3. Calculate Outstanding Balance
+    $total = $booking->total_amount;
+    $alreadyPaid = DB::table('payment')->where('booking_id', $id)->sum('amount');
+    $balance = $total - $alreadyPaid;
+
+    // 4. Record the Payment (If there is a balance)
+    // We assume the checkout pays off the remaining balance
+    if ($balance > 0) {
+        DB::table('payment')->insert([
+            'booking_id' => $id,
+            'customer_id' => $booking->customer_id,
+            'payment_option' => $request->payment_option, // <--- Value from your new dropdown
+            'amount' => $balance,
+            'paid_at' => now()
+        ]);
+    }
+
+    // 5. Update Status to Completed
+    DB::table('booking')
+        ->where('id', $id)
+        ->update([
+            'status' => 'Completed',
+            'updated_at' => now(),
+        ]);
+
+    // 6. Free up the room
+    DB::table('room')
+        ->where('id', $booking->room_id)
+        ->update(['status' => 'Available']);
+
+    // 7. Log Activity
+    $actorId = Session::get('id') ?? Session::get('customer_id');
+    $this->logActivity(
+        $actorId, 
+        'Checkout', 
+        "Processed checkout via {$request->payment_option}. Paid: {$balance}", 
+        $booking->id, 
+        'booking'
+    );
+
+    // Redirect based on who is logged in
+    if(Session::has('id')) {
+        return redirect()->route('bookedRooms')->with('success', 'Checkout processed successfully.');
+    } else {
+        return redirect()->route('customerDashboard')->with('success', 'Thank you! Your checkout is complete.');
+    }
+}
+
 
     public function customerDashboard(){
         // If a customer is not logged in, show an empty but friendly dashboard
@@ -219,9 +337,9 @@ public function customerViewBooking($id)
     $nights   = max(1, $checkIn->diff($checkOut)->days);
 
     $rates = [
-        'Single' => 2000,
-        'Double' => 3000,
-        'Family' => 4500,
+        'Standard' => 2000,
+        'Deluxe' => 3000,
+        'Luxury' => 4500,
     ];
     $ratePerNight = $rates[$booking->room_type] ?? 2500;
 
@@ -447,9 +565,9 @@ public function guest_book_room(Request $request)
 
     // Simple hard-coded rate map; could be moved to a config or table later
     $rates = [
-        'Single' => 2000,
-        'Double' => 3000,
-        'Family' => 4500,
+        'Standard' => 2000,
+        'Deluxe' => 3000,
+        'Luxury' => 4500,
     ];
     $ratePerNight = $rates[$room->room_type] ?? 2500;
     $totalAmount = $ratePerNight * $nights;
@@ -514,9 +632,9 @@ public function member_book_room(Request $request)
     $nights = max(1, $checkIn->diff($checkOut)->days);
 
     $rates = [
-        'Single' => 2000,
-        'Double' => 3000,
-        'Family' => 4500,
+        'Standard' => 2000,
+        'Deluxe' => 3000,
+        'Luxury' => 4500,
     ];
     $ratePerNight = $rates[$room->room_type] ?? 2500;
     $totalAmount = $ratePerNight * $nights;
@@ -541,36 +659,6 @@ public function member_book_room(Request $request)
     return redirect()->route('customerDashboard')
         ->with('success', 'Your booking has been submitted successfully!');
 }
-
-
-
-    public function save_staff(Request $request)
-    {
-        $request->validate([
-            'Fname' => ['required', 'string', 'max:255'],
-            'Lname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:staff,email'],
-            'contact' => ['required', 'string', 'max:15', 'unique:staff,contact'],
-            'role' => ['required', 'string', 'max:255'],
-        ]);
-
-    DB::table('staff')->insert([
-        'Fname' => $request->Fname,
-        'Lname' => $request->Lname,
-        'email' => $request->email,
-        'contact' => $request->contact,
-        'role' => $request->role,
-    ]);
-    
-    // Log activity
-    $adminId = Session::get('id');
-    if ($adminId) {
-        $this->logActivity($adminId, 'Staff Added', "Added new staff: {$request->Fname} {$request->Lname}", null, 'staff');
-    }
-    
-    $request->session()->flash('save_staff');
-    return redirect()->route('addstaff')->with('success', 'Staff added successfully!');
-    }
 
 
 
@@ -713,7 +801,6 @@ public function save_user(Request $request)
 }
 
 
-
     public function auth_user(Request $request){
     $request->validate([
         'email' => 'required|email',
@@ -731,7 +818,6 @@ public function save_user(Request $request)
         $check_user = DB::table('admin')
             ->where('email', $email)
             ->first();
-
         // CHECK A: Does the account exist?
         if (!$check_user) {
             return redirect()->back()->with('error', 'No admin account found with this email.');
@@ -790,7 +876,7 @@ public function save_user(Request $request)
         // Password incorrect
         return redirect()->back()->with('error', 'Incorrect password.');
     }
-   }
+    }
 
 
     /**
@@ -821,16 +907,15 @@ public function save_user(Request $request)
             ->count();
         
         $totalcustomers= DB::table('customers')->count();
-        $totalstaffs= DB::table('staff')->count();
         $totalprofit= DB::table('payment')->sum('amount');
 
-        $roomlabels = ['Single', 'Double', 'Family'];
+        $roomlabels = ['Standard', 'Deluxe', 'Luxury'];
 
 $roomdata = [
     // Count occupied rooms by type (case-insensitive)
-    DB::table('room')->where('room_type', 'Single')->whereRaw('LOWER(status) = ?', ['occupied'])->count(),
-    DB::table('room')->where('room_type', 'Double')->whereRaw('LOWER(status) = ?', ['occupied'])->count(),
-    DB::table('room')->where('room_type', 'Family')->whereRaw('LOWER(status) = ?', ['occupied'])->count(),
+    DB::table('room')->where('room_type', 'Standard')->whereRaw('LOWER(status) = ?', ['occupied'])->count(),
+    DB::table('room')->where('room_type', 'Deluxe')->whereRaw('LOWER(status) = ?', ['occupied'])->count(),
+    DB::table('room')->where('room_type', 'Luxury')->whereRaw('LOWER(status) = ?', ['occupied'])->count(),
 ];
 
 $monthlyPayments = DB::table('payment')
@@ -851,7 +936,7 @@ $monthlyPayments = DB::table('payment')
         // This creates: [1000.00, 1400.00, 1300.00, ...]
         $profitdata = $monthlyPayments->pluck('total_amount');
 
-        return view('dashboard', compact('totaladmin', 'totalrooms', 'allrooms', 'totalAvailableRooms', 'totalcustomers', 'totalstaffs',
+        return view('dashboard', compact('totaladmin', 'totalrooms', 'allrooms', 'totalAvailableRooms', 'totalcustomers',
         'roomlabels', 'roomdata', 'totalprofit', 'profitlabels', 'profitdata'));
     }
 
@@ -1211,117 +1296,54 @@ public function rooms(Request $request)
 
 
 public function payments(Request $request)
-{
-    $search = $request->input('search');
+    {
+        $search = $request->input('search');
 
-    // 1. Start with payment, then JOIN Customers, Booking, and Room
-    $paymentQuery = DB::table('payment')
-        ->leftJoin('customers', 'payment.customer_id', '=', 'customers.id')
-        // ✅ NEW: Join the booking table to link the payment
-        ->leftJoin('booking', 'payment.booking_id', '=', 'booking.id') 
-        // ✅ NEW: Join the room table so we know which room was paid for
-        ->leftJoin('room', 'booking.room_id', '=', 'room.id')
-        ->select(
-            'payment.id', 
-            'payment.payment_option', 
-            'payment.amount', 
-            'payment.paid_at', 
-            'payment.booking_id', // <-- Selecting the Booking ID
-            'customers.Fname', 
-            'customers.Lname',
-            'room.room_number'    // <-- Selecting the Room Number for context
-        );
+        // 1. Start with the payment table
+        $paymentQuery = DB::table('payment')
+            // Join Customers to get Name
+            ->leftJoin('customers', 'payment.customer_id', '=', 'customers.id')
+            // Join Booking to get Booking details
+            ->leftJoin('booking', 'payment.booking_id', '=', 'booking.id') 
+            // Join Room (via Booking) to get Room Number
+            ->leftJoin('room', 'booking.room_id', '=', 'room.id')
+            ->select(
+                'payment.id', 
+                'payment.payment_option', 
+                'payment.amount', 
+                'payment.paid_at', 
+                'payment.booking_id', // Needed for the "Ref" column
+                'customers.Fname', 
+                'customers.Lname',
+                'room.room_number'    // Needed for the "Room" column
+            );
 
-    // 2. Add Search Logic
-    if ($search) {
-        $searchTerms = explode(' ', $search);
+        // 2. Add Search Logic
+        if ($search) {
+            $searchTerms = explode(' ', $search);
 
-        foreach ($searchTerms as $term) {
-            $paymentQuery->where(function ($query) use ($term) {
-                $term = "%{$term}%";
-                $query->where('customers.Fname', 'like', $term)
-                    ->orWhere('customers.Lname', 'like', $term)
-                    ->orWhere('payment.payment_option', 'like', $term)
-                      // ✅ NEW: Allow searching by Booking ID or Room Number
-                    ->orWhere('payment.booking_id', 'like', $term)
-                    ->orWhere('room.room_number', 'like', $term);
-            });
+            foreach ($searchTerms as $term) {
+                $paymentQuery->where(function ($query) use ($term) {
+                    $term = "%{$term}%";
+                    $query->where('customers.Fname', 'like', $term)
+                        ->orWhere('customers.Lname', 'like', $term)
+                        ->orWhere('payment.payment_option', 'like', $term)
+                        ->orWhere('payment.booking_id', 'like', $term)
+                        ->orWhere('room.room_number', 'like', $term);
+                });
+            }
         }
-    }
 
-    // 3. Order by date (Newest payments first) and Paginate
-    $payments = $paymentQuery->orderBy('payment.paid_at', 'desc')
-                    ->paginate(10);
+        // 3. Order by date (Newest payments first)
+        $payments = $paymentQuery->orderBy('payment.paid_at', 'desc')
+        ->simplePaginate(10);
 
-    if ($search) {
-        $payments->appends(['search' => $search]);
-    }
-
-    return view('payment', compact('payments', 'search'));
-}
-
-
-
-public function staffs(Request $request)
-{
-    $search = $request->input('search');
-
-    $staffsQuery = DB::table('staff')
-        ->select('id', 'Fname', 'Lname', 'email', 'contact', 'role');
-
-    // Only apply search logic if $search is not empty
-    if ($search) {
-        // ✅ Split the search string into individual words
-        $searchTerms = explode(' ', $search);
-
-        // ✅ Loop over each search word
-        foreach ($searchTerms as $term) {
-            
-            // ✅ Group the 'OR' statements for each word
-            // This ensures a record must match ALL words (AND logic)
-            // but each word can be in ANY of the columns (OR logic)
-            $staffsQuery->where(function ($query) use ($term) {
-                $term = "%{$term}%";
-                $query->where('Fname', 'like', $term)
-                    ->orWhere('Lname', 'like', $term)
-                    ->orWhere('email', 'like', $term)
-                    ->orWhere('role', 'like', $term)
-                    ->orWhere('contact', 'like', $term);
-            });
+        if ($search) {
+            $payments->appends(['search' => $search]);
         }
+
+        return view('payment', compact('payments', 'search'));
     }
-
-    // Continue with ordering and pagination
-    $staffs = $staffsQuery->orderBy('Lname', 'asc')
-                         ->paginate(10); // <-- show 10 users per page
-
-    // Keep the search query in pagination links
-    if ($search) {
-        $staffs->appends(['search' => $search]);
-    }
-
-    return view('staff', compact('staffs', 'search'));
-}
-
-
-
-public function staffProfile($id)
-{
-    // Fetch the specific staff by ID
-    $staffs = DB::table('staff')
-        ->where('id', $id)
-        ->select('id', 'Fname', 'Lname', 'email', 'contact', 'role')
-        ->first();
-
-    // If no staff found
-    if (!$staffs) {
-        return redirect()->route('staffs')->with('error', 'Staff not found.');
-    }
-
-    // Pass data to view
-    return view('staffProfile', compact('staffs'));
-}
-
 
 
 public function updateProfile(Request $request)
@@ -1544,6 +1566,19 @@ public function admins(Request $request)
     return view('admins', compact('admins', 'search'));
 }
 
+
+
+public function customer_logout(Request $request)
+{
+    // Log logout activity before clearing session
+    $customerId =Session::get('id');
+
+    // Clear all session data
+    $request->session()->flush();
+
+    // Redirect to your login page (welcome.blade.php)
+    return redirect()->route('main')->with('success', 'You have been logged out successfully.');
+}
 
 
 

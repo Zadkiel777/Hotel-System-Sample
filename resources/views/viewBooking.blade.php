@@ -234,9 +234,9 @@
                                     <div class="form-group">
                                         <label for="payment_option"><i class="fas fa-credit-card mr-1"></i> Payment Option</label>
                                         <select name="payment_option" id="payment_option" class="form-control" required>
-                                            <option value="">Select Payment Option</option>
+                                            <option value="">Select</option>
                                             @php
-                                                $options = ['Cash', 'Card', 'GCash', 'Bank Transfer'];
+                                                $options = ['Cash', 'Card'];
                                                 $selectedOption = old('payment_option', $booking->payment_option ?? '');
                                             @endphp
                                             @foreach($options as $option)
@@ -269,6 +269,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <button type="submit" class="btn btn-warning">
                                 <i class="fas fa-save mr-1"></i>
                                 {{ $booking->payment_id ? 'Update Payment' : 'Record Payment' }}

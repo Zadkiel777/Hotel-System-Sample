@@ -66,10 +66,10 @@
                                             </div>
                                             {{-- Style height:auto fixes the squashed input issue --}}
                                             <select class="form-control" id="room_type" name="room_type" style="height: auto;" required>
-                                                <option value="" disabled selected>Select Type</option>
-                                                <option value="Single" {{ old('room_type') == 'Single' ? 'selected' : '' }}>Single</option>
-                                                <option value="Double" {{ old('room_type') == 'Double' ? 'selected' : '' }}>Double</option>
-                                                <option value="Family" {{ old('room_type') == 'Family' ? 'selected' : '' }}>Family</option>
+                                                <option value="" disabled selected>Select Room Type</option>
+                                                <option value="Standard" {{ old('room_type') == 'Standard' ? 'selected' : '' }}>Standard</option>
+                                                <option value="Deluxe" {{ old('room_type') == 'Deluxe' ? 'selected' : '' }}>Deluxe</option>
+                                                <option value="Luxury" {{ old('room_type') == 'Luxury' ? 'selected' : '' }}>Luxury</option>
                                             </select>
                                         </div>
                                         @error('room_type') 
@@ -91,7 +91,6 @@
                                                 <option value="" disabled selected>Select Status</option>
                                                 <option value="Available" {{ old('status') == 'Available' ? 'selected' : '' }}>Available</option>
                                                 <option value="Occupied" {{ old('status') == 'Occupied' ? 'selected' : '' }}>Occupied</option>
-                                                <option value="Under Maintenance" {{ old('status') == 'Under Maintenance' ? 'selected' : '' }}>Maintenance</option>
                                                 <option value="Unavailable" {{ old('status') == 'Unavailable' ? 'selected' : '' }}>Unavailable</option>
                                             </select>
                                         </div>

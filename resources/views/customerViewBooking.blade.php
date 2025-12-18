@@ -95,17 +95,23 @@
                             </div>
                         </div>
                         <hr>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong><i class="fas fa-tag mr-1"></i> Rate per Night:</strong>
-                                <p class="text-muted mb-0">₱ {{ number_format($booking->rate_per_night, 2) }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <strong><i class="fas fa-receipt mr-1"></i> Total Amount:</strong>
-                                <p class="text-muted mb-0">₱ {{ number_format($booking->total_amount, 2) }}</p>
-                            </div>
-                        </div>
-                    </div>
+                        <div class="row mt-3"> <div class="col-md-4">
+        <strong><i class="fas fa-tag mr-1 text-primary"></i> Rate per Night:</strong>
+        <p class="text-muted mb-0">₱ {{ number_format($booking->rate_per_night, 2) }}</p>
+    </div>
+
+    <div class="col-md-4">
+        <strong><i class="fas fa-receipt mr-1 text-success"></i> Total Amount:</strong>
+        <p class="text-dark font-weight-bold mb-0">₱ {{ number_format($booking->total_amount, 2) }}</p>
+    </div>
+
+    <div class="col-md-4">
+        <strong><i class="fas fa-user-check mr-1 text-info"></i> Processed By:</strong>
+        <p class="text-muted mb-0">{{ number_format($booking->total_amount, 2) }}
+        </p>
+    </div>
+
+</div>
                     <div class="card-footer d-flex justify-content-between">
                         <a href="{{ route('customerDashboard') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left mr-1"></i> Back to My Bookings

@@ -77,9 +77,9 @@
                                                          style="width: 40px; height: 40px; object-fit: cover;">
                                                 @else
                                                     <img src="{{ asset('images/default_room.png') }}" 
-                                                         alt="Default" 
-                                                         class="rounded shadow-sm"
-                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                        alt="Default" 
+                                                        class="rounded shadow-sm"
+                                                        style="width: 40px; height: 40px; object-fit: cover;">
                                                 @endif
                                             </td>
                                             
@@ -89,7 +89,16 @@
                                             </td>
                                             
                                             <td class="align-middle">
-                                                {{ $rooms->room_type }}
+                                                @php 
+                                                $typecolor = match(strtolower($rooms->room_type)) {
+                                                    'standard' => 'danger',
+                                                    'deluxe' => 'primary',
+                                                    'luxury' => 'warning',
+                                                    default => 'info',
+                                                };
+                                                @endphp
+                                                <span class="badge badge-{{ $typecolor }} px-2 py-1">
+                                                    {{ $rooms->room_type }}
                                             </td>
                                             
                                             {{-- Status Column --}}

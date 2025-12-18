@@ -91,7 +91,7 @@
                                             
                                             {{-- Type Column (Badge) --}}
                                             <td class="align-middle">
-                                                <span class="badge badge-info px-2">
+                                                <span class="badge badge-primary px-2">
                                                     {{ $customer->customer_type }}
                                                 </span>
                                             </td>

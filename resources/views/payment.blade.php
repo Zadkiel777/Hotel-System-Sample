@@ -93,7 +93,6 @@
                                                     <div class="font-weight-bold text-dark">
                                                         {{ $payment->Fname }} {{ $payment->Lname }}
                                                     </div>
-                                                    <small class="badge badge-primary">Member</small>
                                                 @else
                                                     <div class="font-weight-bold text-secondary">Guest Customer</div>
                                                     <small class="badge badge-secondary">Walk-in</small>
@@ -148,7 +147,7 @@
                     @if($payments->hasPages())
                         <div class="card-footer clearfix">
                             <div class="float-right">
-                                {{ $payments->links('pagination::bootstrap-4') }}
+                                {{ $payments->links('pagination::simple-bootstrap-5') }}
                             </div>
                         </div>
                     @endif

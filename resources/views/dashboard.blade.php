@@ -6,27 +6,6 @@
 {{-- This section replaces the content-header section in the master layout --}}
 @section('content_header')
 
-    <nav class="navbar navbar-expand navbar-white navbar-light">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button">
-                    <i class="fas fa-bars"></i>
-                </a>
-            </li>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="#" class="nav-link">Contact</a>
-            </li>
-        </ul>
-
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                    <i class="fas fa-expand-arrows-alt"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
-
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -88,19 +67,6 @@
                 </div>
             </div>
 
-
-            <div class="col-lg-3 col-6">
-                <div class="small-box bg-danger">
-                    <div class="inner">
-                        <h3>{{$totalstaffs}}</h3>
-                        <p><i class="nav-icon fas fa-user-tie"></i> Total Staff</p>
-                    </div>
-                    <div class="icon">
-                        <i class="nav-icon fas fa-user-tie"></i>
-                    </div>
-                    <a href="{{ route('staffs') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                </div>
-            </div>
 
 
             <div class="col-lg-3 col-6">
@@ -217,7 +183,7 @@
                 labels: @json($roomlabels), // from controller
                 datasets: [{
                     data: @json($roomdata), // from controller
-                    backgroundColor: ['#ff0000ff', '#a112f3ff', '#0431fbff'], // Add more colors if you have more data
+                    backgroundColor: ['#ff0000ff', '#007bffff', '#ffd700ff'], // Add more colors if you have more data
                 }]
             },
             options: {

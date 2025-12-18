@@ -153,9 +153,9 @@
                     <label class="form-label">Room Preference</label>
                     <select name="room_type" class="form-select" required>
                         <option value="">Select Room Type</option>
-                        <option value="Single" {{ old('room_type') == 'Single' ? 'selected' : '' }}>Single Suite</option>
-                        <option value="Double" {{ old('room_type') == 'Double' ? 'selected' : '' }}>Double Suite</option>
-                        <option value="Family" {{ old('room_type') == 'Family' ? 'selected' : '' }}>Family Suite</option>
+                        <option value="Standard" {{ old('room_type') == 'Standard' ? 'selected' : '' }}>Standard</option>
+                        <option value="Deluxe" {{ old('room_type') == 'Deluxe' ? 'selected' : '' }}>Deluxe</option>
+                        <option value="Luxury" {{ old('room_type') == 'Luxury' ? 'selected' : '' }}>Luxury</option>
                     </select>
                     @error('room_type') <small class="text-danger">{{ $message }}</small> @enderror
                 </div>

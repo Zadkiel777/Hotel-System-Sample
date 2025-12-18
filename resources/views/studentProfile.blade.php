@@ -62,9 +62,6 @@
                             <li class="list-group-item">
                                 <b>Account Created</b> <a class="float-right text-muted">{{ \Carbon\Carbon::parse($customers->created_at)->format('M d, Y') }}</a>
                             </li>
-                            <li class="list-group-item">
-                                <b>Status</b> <a class="float-right text-success"><i class="fas fa-check-circle mr-1"></i> Active</a>
-                            </li>
                         </ul>
 
                         <a href="{{ route('users') }}" class="btn btn-default btn-block">

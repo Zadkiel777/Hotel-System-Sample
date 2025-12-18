@@ -99,9 +99,9 @@
                                 <label for="room_type"><i class="fas fa-th-large mr-1"></i> Room Type</label>
                                 <select class="form-control" id="room_type" name="room_type" style="height: auto;" required>
                                     <option value="">Select Room Type</option>
-                                    <option value="Single" {{ $room->room_type == 'Single' ? 'selected' : '' }}>Single</option>
-                                    <option value="Double" {{ $room->room_type == 'Double' ? 'selected' : '' }}>Double</option>
-                                    <option value="Family" {{ $room->room_type == 'Family' ? 'selected' : '' }}>Family</option>
+                                    <option value="Standard" {{ $room->room_type == 'Standard' ? 'selected' : '' }}>Standard</option>
+                                    <option value="Deluxe" {{ $room->room_type == 'Deluxe' ? 'selected' : '' }}>Deluxe</option>
+                                    <option value="Luxury" {{ $room->room_type == 'Luxury' ? 'selected' : '' }}>Luxury</option>
                                 </select>
                                 @error('room_type') 
                                     <span class="text-danger">{{ $message }}</span> 
@@ -114,7 +114,6 @@
                                     <option value="">Select Status</option>
                                     <option value="Available" {{ $room->status == 'Available' ? 'selected' : '' }}>Available</option>
                                     <option value="Occupied" {{ $room->status == 'Occupied' ? 'selected' : '' }}>Occupied</option>
-                                    <option value="Under Maintenance" {{ $room->status == 'Under Maintenance' ? 'selected' : '' }}>Under Maintenance</option>
                                     <option value="Unavailable" {{ $room->status == 'Unavailable' ? 'selected' : '' }}>Unavailable</option>
                                 </select>
                                 @error('status')
