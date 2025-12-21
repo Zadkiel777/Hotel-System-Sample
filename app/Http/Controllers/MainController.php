@@ -242,6 +242,7 @@ class MainController extends Controller
             $query->where(function ($q) use ($term) {
                 $term = "%{$term}%";
                 $q->where('customers.Fname', 'like', $term)
+                  ->orWhere('room.room_type', 'like', $term)
                   ->orWhere('customers.Lname', 'like', $term)
                   ->orWhere('room.room_number', 'like', $term)
                   ->orWhere('customers.customer_type', $term) // Allow searching by Room Number
@@ -1122,23 +1123,32 @@ public function users(Request $request)
 
 public function deleteStudent($id)
 {
+    // 1. Find the student/customer first to make sure they exist
     $student = DB::table('customers')->where('id', $id)->first();
 
     if (!$student) {
-        return redirect()->route('users')->with('error', 'Student not found.');
+        return redirect()->back()->with('error', 'Student not found.');
     }
 
-    DB::table('customers')->where('id', $id)->delete();
+    try {
+        // 2. Start a transaction to ensure both deletes happen, or neither happens
+        DB::transaction(function () use ($id) {
+            
+            // 3. Delete the child records (payments) first
+            // This satisfies the Foreign Key constraint
+            DB::table('payment')->where('customer_id', $id)->delete();
 
-    // Log activity
-    $adminId = Session::get('id');
-    if ($adminId) {
-        $this->logActivity($adminId, 'Customer Deleted', "Deleted customer: {$student->Fname} {$student->Lname}", $id, 'customer');
+            // 4. Now delete the parent record (the customer/student)
+            DB::table('customers')->where('id', $id)->delete();
+        });
+
+        return redirect()->back()->with('success', 'Student and related payments deleted successfully.');
+
+    } catch (\Exception $e) {
+        // If something goes wrong, return with the error message
+        return redirect()->back()->with('error', 'Deletion failed: ' . $e->getMessage());
     }
-
-    return redirect()->route('users')->with('success', 'Student deleted successfully.');
 }
-
 
 
 public function editRoom($id)

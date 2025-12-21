@@ -17,7 +17,6 @@
 
         body {
             min-height: 100vh;
-            /* Ensure you have this image in your public/images folder */
             background: url('{{ asset('images/hotel building.jpg') }}') center/cover fixed no-repeat;
             font-family: 'Poppins', sans-serif;
             color: #f8fafc;
@@ -67,6 +66,8 @@
         .nav-pills .nav-link.active {
             background: linear-gradient(135deg, #60a5fa, #7c3aed);
         }
+        
+        /* Form Styling */
         .form-control {
             border-radius: 14px;
             padding: 0.85rem 1rem;
@@ -77,6 +78,27 @@
             border-color: #7c3aed;
             box-shadow: 0 0 0 0.2rem rgba(124, 58, 237, 0.25);
         }
+
+        /* Show Password Toggle Styling */
+        .input-group-text-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            border-left: none;
+            border-top-right-radius: 14px !important;
+            border-bottom-right-radius: 14px !important;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+        .input-group-text-toggle:hover {
+            color: #7c3aed;
+        }
+        .input-group .form-control {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none;
+        }
+
         .btn-gradient {
             background: linear-gradient(135deg, #60a5fa, #4338ca);
             border: none;
@@ -97,10 +119,9 @@
         /* --- FLIP CARD STYLES --- */
         .flip-container {
             perspective: 1000px;
-            height: 350px; /* Fixed height for consistency */
+            height: 350px;
             cursor: pointer;
         }
-
         .flip-inner {
             position: relative;
             width: 100%;
@@ -109,12 +130,9 @@
             transition: transform 0.8s;
             transform-style: preserve-3d;
         }
-
-        /* Class to trigger flip */
         .flip-container.flipped .flip-inner {
             transform: rotateY(180deg);
         }
-
         .flip-front, .flip-back {
             position: absolute;
             width: 100%;
@@ -123,60 +141,26 @@
             backface-visibility: hidden;
             border-radius: 20px;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.05); /* Subtle glass effect */
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-
-        .flip-front {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .flip-front { display: flex; flex-direction: column; }
         .flip-back {
             transform: rotateY(180deg);
-            background: rgba(15, 23, 42, 0.95); /* Darker background for text readability */
+            background: rgba(15, 23, 42, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 2rem;
         }
-
-        .room-image-wrapper {
-            flex-grow: 1;
-            overflow: hidden;
-            height: 100%;
-        }
-
-        .room-image-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        
-        .flip-container:hover .flip-front img {
-            transform: scale(1.1);
-        }
-
-        .feature-list-flip {
-            text-align: left;
-            width: 100%;
-            margin-top: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            padding-left: 0;
-        }
-        .feature-list-flip li {
-            list-style: none;
-            margin-bottom: 0.5rem;
-        }
-        .feature-list-flip i {
-            width: 25px;
-            color: #60a5fa;
-        }
+        .room-image-wrapper { flex-grow: 1; overflow: hidden; height: 100%; }
+        .room-image-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .flip-container:hover .flip-front img { transform: scale(1.1); }
+        .feature-list-flip { text-align: left; width: 100%; margin-top: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: #cbd5e1; padding-left: 0; }
+        .feature-list-flip li { list-style: none; margin-bottom: 0.5rem; }
+        .feature-list-flip i { width: 25px; color: #60a5fa; }
     </style>
 </head>
 <body class="position-relative">
@@ -196,7 +180,7 @@
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav ms-auto gap-3">
                     <li class="nav-item"><a class="nav-link text-white-50" href="#amenities">Amenities</a></li>
-                    <li class="nav-item"><a class="nav-link text-white-50" href="#rooms">Rooms</a></li> {{-- Updated Link --}}
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#rooms">Rooms</a></li>
                     <li class="nav-item"><a class="nav-link text-white-50" href="#reviews">Reviews</a></li>
                     <li class="nav-item"><a class="nav-link text-white-50" href="#about">About</a></li>
                     <li class="nav-item"><a class="nav-link text-white-50" href="{{ route('guestbooking') }}">Booking</a></li>
@@ -269,7 +253,12 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label text-white-50">Password</label>
-                                        <input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+                                        <div class="input-group">
+                                            <input type="password" name="password" id="admin_pass" class="form-control" placeholder="Enter Password" required>
+                                            <span class="input-group-text input-group-text-toggle toggle-password" data-target="admin_pass">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-gradient w-100 text-white">
                                         <i class="fas fa-right-to-bracket me-2"></i>Sign in as Admin
@@ -277,8 +266,7 @@
                                 </form>
                             </div>
                             <div class="tab-pane fade show active" id="user-login" role="tabpanel">
-                                <div class="text-white-50 mb-4">
-                                    <form action="{{ route('auth_user') }}" method="POST">
+                                <form action="{{ route('auth_user') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="login_type" value="customer">
                                     <div class="mb-3">
@@ -287,13 +275,17 @@
                                     </div>
                                     <div class="mb-4">
                                         <label class="form-label text-white-50">Password</label>
-                                        <input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+                                        <div class="input-group">
+                                            <input type="password" name="password" id="customer_pass" class="form-control" placeholder="Enter Password" required>
+                                            <span class="input-group-text input-group-text-toggle toggle-password" data-target="customer_pass">
+                                                <i class="fas fa-eye"></i>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-gradient w-100 text-white">
+                                    <button type="submit" class="btn btn-gradient w-100 text-white mb-3">
                                         <i class="fas fa-right-to-bracket me-2"></i>Sign in as Customer
                                     </button>
                                 </form>
-                                </div>
                                 <a href="{{ route('register') }}" class="btn btn-outline-light w-100 rounded-4">
                                     <i class="fas fa-user-plus me-2"></i>Create an Account
                                 </a>
@@ -336,9 +328,7 @@
             <div class="info-section mt-5 p-4" id="rooms">
                 <div class="text-center mb-4">
                     <h4 class="fw-bold">Luxurious Accommodations</h4>
-                    <p class="text-white-50">Explore our collection of elegantly appointed rooms,
-                    each designed to offer a unique blend of modern comfort and timeless style.
-                    Find your perfect sanctuary.</p>
+                    <p class="text-white-50">Explore our collection of elegantly appointed rooms.</p>
                 </div>
                 <div class="row g-4">
                     {{-- Room 1 --}}
@@ -428,7 +418,6 @@
             <div class="info-section mt-5 p-4" id="reviews">
                 <div class="text-center mb-4">
                     <h4 class="fw-bold">Guest Experiences</h4>
-                    <p class="text-white-50">See what our visitors have to say about their stay.</p>
                 </div>
                 <div class="row g-4">
                     <div class="col-md-4">
@@ -436,15 +425,10 @@
                             <div class="text-warning mb-2">
                                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                             </div>
-                            <p class="fst-italic text-white-50">"The view from the luxury suite was breathtaking. The service was impeccable from start to finish."</p>
+                            <p class="fst-italic text-white-50">"The view from the luxury suite was breathtaking."</p>
                             <div class="d-flex align-items-center mt-3">
-                                <div class="bg-primary bg-opacity-25 rounded-circle p-2 me-2 text-white">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold fs-6">Sarah Jenkins</h6>
-                                    <small class="text-white-50">Business Traveler</small>
-                                </div>
+                                <div class="bg-primary bg-opacity-25 rounded-circle p-2 me-2 text-white"><i class="fas fa-user"></i></div>
+                                <div><h6 class="mb-0 fw-bold fs-6">Sarah Jenkins</h6></div>
                             </div>
                         </div>
                     </div>
@@ -453,15 +437,10 @@
                             <div class="text-warning mb-2">
                                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                             </div>
-                            <p class="fst-italic text-white-50">"Absolutely loved the infinity pool. A perfect weekend getaway spot. The food was 5-star quality."</p>
+                            <p class="fst-italic text-white-50">"Absolutely loved the infinity pool. The food was 5-star."</p>
                             <div class="d-flex align-items-center mt-3">
-                                <div class="bg-success bg-opacity-25 rounded-circle p-2 me-2 text-white">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold fs-6">Michael Chen</h6>
-                                    <small class="text-white-50">Vacationer</small>
-                                </div>
+                                <div class="bg-success bg-opacity-25 rounded-circle p-2 me-2 text-white"><i class="fas fa-user"></i></div>
+                                <div><h6 class="mb-0 fw-bold fs-6">Michael Chen</h6></div>
                             </div>
                         </div>
                     </div>
@@ -470,15 +449,10 @@
                             <div class="text-warning mb-2">
                                 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                             </div>
-                            <p class="fst-italic text-white-50">"Clean, modern, and very secure. The booking process was so easy using this portal."</p>
+                            <p class="fst-italic text-white-50">"Clean, modern, and very secure."</p>
                             <div class="d-flex align-items-center mt-3">
-                                <div class="bg-danger bg-opacity-25 rounded-circle p-2 me-2 text-white">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 fw-bold fs-6">Jessica Doe</h6>
-                                    <small class="text-white-50">Family Trip</small>
-                                </div>
+                                <div class="bg-danger bg-opacity-25 rounded-circle p-2 me-2 text-white"><i class="fas fa-user"></i></div>
+                                <div><h6 class="mb-0 fw-bold fs-6">Jessica Doe</h6></div>
                             </div>
                         </div>
                     </div>
@@ -490,48 +464,25 @@
                 <div class="row align-items-center g-4">
                     <div class="col-lg-6">
                         <h4 class="fw-bold mb-3">About Bluebird Hotel</h4>
-                        <p class="text-white-50">
-                            Bluebird Hotel has become a landmark of luxury and comfort in the heart of the city. 
-                            Our mission is to provide an unforgettable experience where modern elegance meets traditional hospitality.
-                        </p>
-                        <p class="text-white-50">
-                            Whether you are visiting for business or leisure, our dedicated team is committed to ensuring your stay is 
-                            nothing short of perfection. We pride ourselves on attention to detail, from our thread counts to our 
-                            locally sourced dining ingredients.
-                        </p>
+                        <p class="text-white-50">Landmark of luxury and comfort in the heart of the city.</p>
                         <div class="mt-4">
                             <a href="{{ route('guestbooking') }}" class="btn btn-outline-light rounded-pill px-4">Book Your Stay</a>
                         </div>
                     </div>
-                    
                     <div class="col-lg-6">
                         <div class="row g-3 text-center">
                             <div class="col-6">
                                 <div class="p-3 border border-light border-opacity-10 rounded-3 bg-dark bg-opacity-25 h-100">
                                     <i class="fas fa-utensils text-warning mb-2 fs-4"></i>
                                     <h5 class="fw-bold text-white mb-0">3</h5>
-                                    <small class="text-white-50">Gourmet Restaurants</small>
+                                    <small class="text-white-50">Restaurants</small>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-3 border border-light border-opacity-10 rounded-3 bg-dark bg-opacity-25 h-100">
                                     <i class="fas fa-star text-warning mb-2 fs-4"></i>
                                     <h5 class="fw-bold text-white mb-0">4.9</h5>
-                                    <small class="text-white-50">Average Rating</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-3 border border-light border-opacity-10 rounded-3 bg-dark bg-opacity-25 h-100">
-                                    <i class="fas fa-car text-info mb-2 fs-4"></i>
-                                    <h5 class="fw-bold text-white mb-0">Valet</h5>
-                                    <small class="text-white-50">Free Parking</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-3 border border-light border-opacity-10 rounded-3 bg-dark bg-opacity-25 h-100">
-                                    <i class="fas fa-shield-alt text-success mb-2 fs-4"></i>
-                                    <h5 class="fw-bold text-white mb-0">24/7</h5>
-                                    <small class="text-white-50">Secure Facility</small>
+                                    <small class="text-white-50">Rating</small>
                                 </div>
                             </div>
                         </div>
@@ -546,5 +497,23 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle Password Logic
+        document.querySelectorAll('.toggle-password').forEach(span => {
+            span.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
